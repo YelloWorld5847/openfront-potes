@@ -41,16 +41,17 @@ ce qui couvre un seul service allumé en continu. Si ça ne suffit pas, ajouter 
 
 ## Modificateurs chaos
 
-Les parties automatiques ("spéciales") tirent au hasard 1 à 3 modificateurs, qui se combinent avec ceux d'origine.
+Les parties automatiques ("spéciales") tirent au hasard 1 à 3 modificateurs, qui se combinent avec ceux d'origine, et au moins un des nôtres à chaque fois.
 Les nôtres ont un badge orange dans la liste des parties.
+On peut aussi les activer dans un salon privé (Advanced settings) et en Solo.
 
-| Modificateur         | Ce que ça fait                                                                                                                                             | Réglages                                                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Volcan               | un joueur "Volcan" (rouge lave) apparaît à 3 min sur une zone vide et envoie une vague d'attaque toutes les 45 s. On le combat comme n'importe quel joueur | `packages/engine/src/execution/VolcanoExecution.ts` (délais, taille des vagues) |
-| Contrats secrets     | chaque joueur reçoit en privé un objectif (3 ports, 4 villes, un silo, 3 navires de guerre, 5 % des terres) et 250 000 d'or à la clé                       | `ContractsExecution.ts` (liste `CONTRACTS`, `REWARD`)                           |
-| Marché noir          | toutes les 4 minutes environ, un événement change tous les revenus d'or : x2, x3 ou /2 pendant 40 à 60 s, annoncé à tous                                   | `BlackMarketExecution.ts` (liste `DEALS`)                                       |
-| Trésors cachés       | de petites parcelles dorées gardées par des troupes, à prendre comme n'importe quel territoire pour gagner de l'or (150 000, 400 000 ou 1 000 000)         | `TreasureExecution.ts` (liste `TIERS`)                                          |
-| Brouillard de guerre | la carte est sombre hors de ton territoire, de celui de tes alliés et de tes unités. C'est un effet d'affichage, pas une protection contre la triche       | `src/client/controllers/FogController.ts`                                       |
+| Modificateur         | Ce que ça fait                                                                                                                                             | Réglages                                                                                                           |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Volcan               | un joueur "Volcan" (rouge lave) apparaît à 3 min sur une zone vide et envoie une vague d'attaque toutes les 45 s. On le combat comme n'importe quel joueur | `VolcanoExecution.ts` (délais, taille des vagues), dessin dans `src/client/controllers/VolcanoMarkerController.ts` |
+| Contrats secrets     | chaque joueur reçoit en privé un objectif (3 ports, 4 villes, un silo, 3 navires de guerre, 5 % des terres) et 250 000 d'or à la clé                       | `ContractsExecution.ts` (liste `CONTRACTS`, `REWARD`)                                                              |
+| Marché noir          | toutes les 4 minutes environ, un événement change tous les revenus d'or : x2, x3 ou /2 pendant 40 à 60 s, annoncé à tous                                   | `BlackMarketExecution.ts` (liste `DEALS`)                                                                          |
+| Trésors cachés       | de petites parcelles dorées gardées par des troupes, à prendre comme n'importe quel territoire pour gagner de l'or (150 000, 400 000 ou 1 000 000)         | `TreasureExecution.ts` (liste `TIERS`)                                                                             |
+| Brouillard de guerre | la carte est sombre hors de ton territoire, de celui de tes alliés et de tes unités. C'est un effet d'affichage, pas une protection contre la triche       | `src/client/controllers/FogController.ts`                                                                          |
 
 La fréquence de chaque modificateur se règle dans `SPECIAL_MODIFIER_POOL` (`src/server/MapPlaylist.ts`) : plus il y a de lignes, plus il sort souvent.
 Pour en forcer sur toutes les parties spéciales, par exemple en test : `FORCE_MODIFIERS=isFog,isTreasures` (noms dans `ModifierKey`).

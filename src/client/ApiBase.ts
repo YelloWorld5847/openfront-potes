@@ -5,9 +5,6 @@ import { ClientEnv } from "./ClientEnv";
 // import cycle; Api.ts re-exports both for its existing importers.
 
 export function getApiBase() {
-  // standalone server: the game server also plays the api
-  if (ClientEnv.standalone()) return window.location.origin;
-
   const domainname = getAudience();
 
   if (domainname === "localhost") {
@@ -17,6 +14,9 @@ export function getApiBase() {
     }
     return localStorage.getItem("apiHost") ?? "http://localhost:8787";
   }
+
+  // standalone server (never on localhost): the game server also plays the api
+  if (ClientEnv.standalone()) return window.location.origin;
 
   return `https://api.${domainname}`;
 }

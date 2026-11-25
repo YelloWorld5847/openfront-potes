@@ -10,6 +10,16 @@ import { adjustForTeams } from "@openfront/engine-lib/game/TeamAssignment";
 // a pool has to agree on it and a patch reaches exactly one GameServer.
 // maxPlayers is handled on its own below.
 
+// our own modifiers, the only keys of publicGameModifiers a host may set (the
+// stock ones stay with the public rotation)
+const CHAOS_KEYS = [
+  "isVolcano",
+  "isContracts",
+  "isBlackMarket",
+  "isTreasures",
+  "isFog",
+] as const;
+
 // Copied whenever the patch carries them.
 const COPIED_KEYS = [
   "gameMap",
@@ -88,6 +98,17 @@ export function applyGameConfigPatch(
   }
   for (const key of NULLABLE_KEYS) {
     copyNullable(target, rest, key);
+  }
+  if (rest.publicGameModifiers !== undefined) {
+    const next = { ...target.publicGameModifiers };
+    for (const key of CHAOS_KEYS) {
+      const wanted = rest.publicGameModifiers[key];
+      if (wanted === undefined) continue;
+      if (wanted) next[key] = true;
+      else delete next[key];
+    }
+    target.publicGameModifiers =
+      Object.keys(next).length > 0 ? next : undefined;
   }
   // The host's player cap: null lifts it, undefined leaves it alone. Lowering
   // it below the seated count kicks no one; it only turns away further

@@ -23,13 +23,13 @@ describe("VolcanoExecution", () => {
     game.addExecution(new VolcanoExecution("game_id"));
   });
 
-  test("stays asleep before the first eruption", () => {
-    run(game, 1000);
-    expect(volcano(game)).toBeUndefined();
+  test("is there from the first moments of the game", () => {
+    run(game, 30);
+    expect(volcano(game)).toBeDefined();
   });
 
   test("wakes up as a lava bot with some land", () => {
-    run(game, 2000);
+    run(game, 30);
     const lava = volcano(game);
     expect(lava).toBeDefined();
     expect(lava!.type()).toBe(PlayerType.Bot);
@@ -37,9 +37,9 @@ describe("VolcanoExecution", () => {
   });
 
   test("keeps spreading as waves come", () => {
-    run(game, 2000);
+    run(game, 30);
     const start = volcano(game)!.numTilesOwned();
-    run(game, 6000);
+    run(game, 3000);
     expect(volcano(game)!.numTilesOwned()).toBeGreaterThan(start);
   });
 

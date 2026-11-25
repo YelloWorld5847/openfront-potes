@@ -110,6 +110,15 @@ const SPECIAL_MODIFIER_POOL: ModifierKey[] = [
   ...Array<ModifierKey>(4).fill("isFog"),
 ];
 
+// our own modifiers, the ones with the orange badge
+const CHAOS_MODIFIERS: ModifierKey[] = [
+  "isVolcano",
+  "isContracts",
+  "isBlackMarket",
+  "isTreasures",
+  "isFog",
+];
+
 // Speeds the Doomsday Clock can roll at when it lands in the rotation. Picked
 // per game (see getSpecialConfig) so the pacing varies instead of always being
 // the same preset.
@@ -804,6 +813,17 @@ export class MapPlaylist {
           (key === a && selected.has(b)) || (key === b && selected.has(a)),
       );
       if (!blocked) selected.add(key);
+    }
+
+    // every special game carries at least one of ours, so one of the three
+    // cards in the lobby list is always a chaos game
+    if (!CHAOS_MODIFIERS.some((key) => selected.has(key))) {
+      const options = CHAOS_MODIFIERS.filter(
+        (key) => !excludedModifiers.includes(key),
+      );
+      if (options.length > 0) {
+        selected.add(options[Math.floor(Math.random() * options.length)]);
+      }
     }
 
     // FORCE_MODIFIERS=isFog,isVolcano pins those on every special game

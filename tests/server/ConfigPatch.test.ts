@@ -96,6 +96,31 @@ describe("applyGameConfigPatch", () => {
     expect(target.hostCheats).toEqual({ startingGold: 5 });
   });
 
+  it("lets the host switch our chaos modifiers on and off, and nothing else in publicGameModifiers", () => {
+    const target = testGameConfig();
+    applyGameConfigPatch(target, {
+      publicGameModifiers: {
+        isVolcano: true,
+        isFog: true,
+        isContracts: false,
+        // a stock modifier: the public rotation owns those
+        isCompact: true,
+      },
+    });
+    expect(target.publicGameModifiers).toEqual({
+      isVolcano: true,
+      isFog: true,
+    });
+
+    applyGameConfigPatch(target, {
+      publicGameModifiers: { isVolcano: false },
+    });
+    expect(target.publicGameModifiers).toEqual({ isFog: true });
+
+    applyGameConfigPatch(target, { publicGameModifiers: { isFog: false } });
+    expect(target.publicGameModifiers).toBeUndefined();
+  });
+
   it("ignores gameType, which has its own guarded path", () => {
     const target = testGameConfig({ gameType: GameType.Private });
     applyGameConfigPatch(target, { gameType: GameType.Public });

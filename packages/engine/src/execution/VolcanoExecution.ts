@@ -22,8 +22,10 @@ import { AttackExecution } from "./AttackExecution";
 import { PlayerExecution } from "./PlayerExecution";
 import { getSpawnTiles } from "./Util";
 
-const FIRST_ERUPTION_TICKS = 1800;
+const FIRST_ERUPTION_TICKS = 0;
 const WAVE_TICKS = 450;
+// the first wave comes soon after it appears, then the usual rhythm
+const FIRST_WAVE_TICKS = 200;
 const RESPAWN_TICKS = 600;
 const MIN_WAVE_TROOPS = 1000;
 
@@ -62,7 +64,7 @@ export class VolcanoExecution implements Execution {
     if (this.volcano === null || !this.volcano.isAlive()) {
       this.wakeUp(this.mg);
       this.nextAt =
-        ticks + (this.volcano === null ? RESPAWN_TICKS : WAVE_TICKS);
+        ticks + (this.volcano === null ? RESPAWN_TICKS : FIRST_WAVE_TICKS);
       return;
     }
     this.erupt(this.mg, this.volcano);

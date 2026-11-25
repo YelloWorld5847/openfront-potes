@@ -30,6 +30,7 @@ import {
   translateText,
 } from "../client/Utils";
 import { createLobby, getUserMe, queueLobby, setLobbyListed } from "./Api";
+import { CHAOS_TOGGLES, chaosFlags } from "./ChaosModifiers";
 import "./components/baseComponents/Modal";
 import { BaseModal } from "./components/BaseModal";
 import "./components/ConfirmDialog";
@@ -124,6 +125,7 @@ export class HostLobbyModal extends BaseModal {
   @state() private whitelistEnabled: boolean = false;
   @state() private allowedPublicIds: string = "";
   @state() private waterNukes: boolean = false;
+  @state() private chaosKeys: string[] = [];
   @state() private lobbyId = "";
   @state() private lobbyUrlSuffix = "";
   @state() private clients: ClientInfo[] = [];
@@ -772,6 +774,10 @@ export class HostLobbyModal extends BaseModal {
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
                   },
+                  ...CHAOS_TOGGLES.map((t) => ({
+                    labelKey: t.labelKey,
+                    checked: this.chaosKeys.includes(t.key),
+                  })),
                   // Host cheats and public listing are mutually exclusive
                   // (the server rejects both combinations), so the controls
                   // disappear while the lobby is listed.
@@ -1131,6 +1137,7 @@ export class HostLobbyModal extends BaseModal {
     this.whitelistEnabled = false;
     this.allowedPublicIds = "";
     this.waterNukes = false;
+    this.chaosKeys = [];
     this.hostCheatsEnabled = false;
     this.hostCheatInfiniteGold = false;
     this.hostCheatInfiniteTroops = false;
@@ -1242,8 +1249,15 @@ export class HostLobbyModal extends BaseModal {
         this.hostCheatsEnabled = checked;
         void this.putGameConfig();
         break;
-      default:
+      default: {
+        const chaos = CHAOS_TOGGLES.find((t) => t.labelKey === labelKey);
+        if (chaos === undefined) break;
+        this.chaosKeys = checked
+          ? [...this.chaosKeys, chaos.key]
+          : this.chaosKeys.filter((k) => k !== chaos.key);
+        void this.putGameConfig();
         break;
+      }
     }
   };
 
@@ -2003,6 +2017,7 @@ export class HostLobbyModal extends BaseModal {
               ? (this.parseAllowedPublicIds() ?? [])
               : [],
             waterNukes: this.waterNukes ? true : null,
+            publicGameModifiers: chaosFlags(this.chaosKeys),
             hostCheats: this.hostCheatsEnabled
               ? {
                   infiniteGold: this.hostCheatInfiniteGold || undefined,

@@ -21,6 +21,7 @@ import { html, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { showToast, translateText } from "../client/Utils";
 import { responseHasLinkedIdentity } from "./AccountIdentity";
+import { CHAOS_TOGGLES, chaosFlags } from "./ChaosModifiers";
 import "./components/baseComponents/Button";
 import "./components/baseComponents/Modal";
 import { BaseModal } from "./components/BaseModal";
@@ -250,6 +251,7 @@ export class SinglePlayerModal extends BaseModal {
   @state() private customAllianceMinutes: number | undefined =
     DEFAULT_OPTIONS.customAllianceMinutes;
   @state() private waterNukes: boolean = DEFAULT_OPTIONS.waterNukes;
+  @state() private chaosKeys: string[] = [];
   @state() private doomsdayClock: boolean = DEFAULT_OPTIONS.doomsdayClock;
   @state() private doomsdayClockSpeed: DoomsdayClockSpeed =
     DEFAULT_OPTIONS.doomsdayClockSpeed;
@@ -640,6 +642,10 @@ export class SinglePlayerModal extends BaseModal {
                     checked: this.doomsdayClock,
                     doomsdayClockSpeed: this.doomsdayClockSpeed,
                   },
+                  ...CHAOS_TOGGLES.map((t) => ({
+                    labelKey: t.labelKey,
+                    checked: this.chaosKeys.includes(t.key),
+                  })),
                 ],
                 inputCards,
               },
@@ -842,6 +848,7 @@ export class SinglePlayerModal extends BaseModal {
     this.customAlliances = DEFAULT_OPTIONS.customAlliances;
     this.customAllianceMinutes = DEFAULT_OPTIONS.customAllianceMinutes;
     this.waterNukes = DEFAULT_OPTIONS.waterNukes;
+    this.chaosKeys = [];
     this.doomsdayClock = DEFAULT_OPTIONS.doomsdayClock;
     this.doomsdayClockSpeed = DEFAULT_OPTIONS.doomsdayClockSpeed;
     this.overtime = DEFAULT_OPTIONS.overtime;
@@ -1060,8 +1067,14 @@ export class SinglePlayerModal extends BaseModal {
       case "game_settings.doomsday_clock":
         this.doomsdayClock = checked;
         break;
-      default:
+      default: {
+        const chaos = CHAOS_TOGGLES.find((t) => t.labelKey === labelKey);
+        if (chaos === undefined) break;
+        this.chaosKeys = checked
+          ? [...this.chaosKeys, chaos.key]
+          : this.chaosKeys.filter((k) => k !== chaos.key);
         break;
+      }
     }
   };
 
@@ -1388,6 +1401,9 @@ export class SinglePlayerModal extends BaseModal {
               ? { customAllianceDuration: this.customAllianceMinutes ?? 0 }
               : {}),
             ...(this.waterNukes ? { waterNukes: true } : {}),
+            ...(this.chaosKeys.length > 0
+              ? { publicGameModifiers: chaosFlags(this.chaosKeys) }
+              : {}),
             ...(this.doomsdayClock
               ? {
                   doomsdayClock: {

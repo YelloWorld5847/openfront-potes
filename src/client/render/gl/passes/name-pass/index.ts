@@ -16,6 +16,7 @@
  *   - types          — shared interfaces + constants
  */
 
+import { VOLCANO_NAME } from "@openfront/engine-api/game/GameTypes";
 import type { Config } from "@openfront/engine-lib/configuration/Config";
 import type {
   NameEntry,
@@ -452,7 +453,8 @@ export class NamePass {
 
       // Per-player state straight from the caller's map — smallID is the key.
       const ps = players.get(slot.static.smallID);
-      const alive = ps?.isAlive ?? false;
+      // the volcano is a mountain, it gets no name tag like a player
+      const alive = (ps?.isAlive ?? false) && slot.static.name !== VOLCANO_NAME;
 
       // Skip dead players already marked dead — no work needed
       if (!alive && !slot.alive) continue;
