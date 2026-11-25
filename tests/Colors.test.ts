@@ -158,6 +158,7 @@ describe.each(["default", "colorblind"] as const)(
         team: () => null,
         type: () => type,
         id: () => id,
+        name: () => id,
       }) as unknown as PlayerView;
 
     const assignedColors = (type: PlayerType): Colord[] => {

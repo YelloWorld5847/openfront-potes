@@ -115,13 +115,10 @@ export class ServerEnv {
     if (ServerEnv.isStandalone()) return "http://127.0.0.1:3000";
     return `https://api.${audience}`;
   }
-  // dev env on a real domain: no external api, the master answers the api
-  // calls itself (StandaloneApi.ts)
+  // STANDALONE=1: no external api, the master answers the api calls itself
+  // (StandaloneApi.ts)
   static isStandalone(): boolean {
-    return (
-      ServerEnv.gameEnv === GameEnv.Dev &&
-      ServerEnv.jwtAudience() !== "localhost"
-    );
+    return process.env.STANDALONE === "1";
   }
   // what the "iss" of our tokens says, which is the public origin the
   // browser sees, not the loopback address workers call

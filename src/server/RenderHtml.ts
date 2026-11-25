@@ -78,6 +78,7 @@ export async function renderHtmlContent(
     : {};
   return ejs.render(htmlContent, {
     ...perServerLocals,
+    standalone: ServerEnv.isStandalone() ? "true" : undefined,
     gitCommit: JSON.stringify(ServerEnv.gitCommit()),
     assetManifest: JSON.stringify(assetManifest),
     cdnBase: JSON.stringify(cdnBase),

@@ -43,6 +43,8 @@ declare global {
       // standalone deployments (beta, branch previews, dev), desktop, and
       // static pages.
       siteHost?: string;
+      // This server plays the account api itself (StandaloneApi.ts)
+      standalone?: boolean;
     };
   }
 }

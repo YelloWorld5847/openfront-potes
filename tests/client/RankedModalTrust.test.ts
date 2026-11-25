@@ -27,6 +27,7 @@ vi.mock("../../src/client/Utils", () => ({
   translateText: vi.fn((key: string) => key),
   getMapName: vi.fn(),
   getModifierLabels: vi.fn(() => []),
+  getModifierPills: vi.fn(() => []),
 }));
 
 import { RankedModal } from "../../src/client/components/RankedModal";

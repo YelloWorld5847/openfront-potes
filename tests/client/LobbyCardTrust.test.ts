@@ -17,6 +17,7 @@ vi.mock("../../src/client/Utils", () => ({
   translateText: vi.fn((key: string) => key),
   getMapName: vi.fn((m: string | undefined) => m ?? null),
   getModifierLabels: vi.fn(() => []),
+  getModifierPills: vi.fn(() => []),
 }));
 
 const isOnCrazyGames = vi.fn(() => false);

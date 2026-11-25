@@ -1,4 +1,3 @@
-import { GameEnv } from "@openfront/shared/configuration/Env";
 import { ClientEnv } from "./ClientEnv";
 
 // The account/shop API origin (api.<audience>). Lives apart from Api.ts so
@@ -6,6 +5,9 @@ import { ClientEnv } from "./ClientEnv";
 // import cycle; Api.ts re-exports both for its existing importers.
 
 export function getApiBase() {
+  // standalone server: the game server also plays the api
+  if (ClientEnv.standalone()) return window.location.origin;
+
   const domainname = getAudience();
 
   if (domainname === "localhost") {
@@ -15,9 +17,6 @@ export function getApiBase() {
     }
     return localStorage.getItem("apiHost") ?? "http://localhost:8787";
   }
-
-  // standalone server: the game server also plays the api
-  if (ClientEnv.env() === GameEnv.Dev) return window.location.origin;
 
   return `https://api.${domainname}`;
 }

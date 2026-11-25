@@ -181,6 +181,7 @@ export class ClientEnv {
       // Absent on the web build (falls back to same-origin window.location).
       serverHost: bc.serverHost,
       siteHost: bc.siteHost,
+      standalone: bc.standalone === true,
     };
     return ClientEnv.values;
   }
@@ -395,6 +396,9 @@ export class ClientEnv {
   // The load-balancer apex this deployment sits behind — the unknown-letter
   // redirect target, whose shell always carries the freshest cluster map.
   // Absent for standalone deployments and desktop: no apex to bounce to.
+  static standalone(): boolean {
+    return ClientEnv.get().standalone;
+  }
   static siteHost(): string | undefined {
     return ClientEnv.get().siteHost;
   }
@@ -678,4 +682,5 @@ export interface ClientEnvValues {
   gitCommit: string;
   serverHost?: string;
   siteHost?: string;
+  standalone: boolean;
 }

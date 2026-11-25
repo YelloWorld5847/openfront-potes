@@ -9,6 +9,8 @@ services:
         value: "80"
       - key: GAME_ENV
         value: dev
+      - key: STANDALONE
+        value: "1"
       - key: NUM_WORKERS
         value: "1"
       - key: INSTANCE_LETTER

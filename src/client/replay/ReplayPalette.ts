@@ -72,10 +72,11 @@ export function buildReplayPalette(
   for (const p of players) {
     const own =
       (p.clientID === null ? undefined : cosmetics.get(p.clientID)) ?? {};
-    // The theme only reads id, type and team. Nobody in a replay is the
+    // The theme only reads id, name, type and team. Nobody in a replay is the
     // local player, so no border is focused.
     const themed = theme.territoryColor({
       id: () => p.id,
+      name: () => p.name,
       type: () => playerTypeFromEnum(p.playerType),
       team: () => p.team,
     } as unknown as PlayerView);

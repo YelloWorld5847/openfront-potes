@@ -119,14 +119,24 @@ function expectOnTrack(runner: GameRunner, ref: Reference): void {
   }
 }
 
+// the chaos modifiers each add an execution, so one game carries them all
+const CHAOS: Partial<GameConfig> = {
+  publicGameModifiers: {
+    isVolcano: true,
+    isContracts: true,
+    isBlackMarket: true,
+    isTreasures: true,
+  },
+};
+
 const VARIANTS: [string, Partial<GameConfig>][] = [
-  ["free for all", {}],
+  ["free for all", CHAOS],
   // Water nukes rewrite terrain and the water graph mid-game.
   ["water nukes", { waterNukes: true }],
   ["teams", { gameMode: GameMode.Team, playerTeams: 2 }],
 ];
 
-describe.each(VARIANTS)("full game snapshots: %s", (_, overrides) => {
+describe.each(VARIANTS)("full game snapshots: %s", (variant, overrides) => {
   const start = scriptedGameStart(overrides);
   let reference: Reference;
 
@@ -193,7 +203,7 @@ describe.each(VARIANTS)("full game snapshots: %s", (_, overrides) => {
   test(
     "the game exercised every execution type",
     () => {
-      if (Object.keys(overrides).length > 0) return; // checked once, on FFA
+      if (variant !== "free for all") return; // checked once, on FFA
       // Runs during the spawn phase and finishes inside init, so it is never
       // alive at a tick boundary. BasicExecutions.test.ts covers it directly.
       const neverStored = new Set(["Pause"]);

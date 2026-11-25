@@ -54,6 +54,7 @@ function themeColors(
     theme
       .territoryColor({
         id: () => p.id,
+        name: () => p.name,
         type: () => playerTypeFromEnum(p.playerType),
         team: () => p.team,
       } as unknown as PlayerView)
