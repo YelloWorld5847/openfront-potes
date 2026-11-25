@@ -37,10 +37,6 @@ export interface MasterLobbyServiceOptions {
  */
 const QUEUED_LOBBIES_PER_TYPE = 12;
 
-// how long a countdown just handed out is trusted before the workers' lobby
-// reports have had time to show it
-const COUNTDOWN_REPORT_GRACE_MS = 3000;
-
 export class MasterLobbyService {
   private readonly workers = new Map<number, Worker>();
   // Worker id => the lobbies it owns.
@@ -55,8 +51,8 @@ export class MasterLobbyService {
   // delisted.
   private readonly loserStreaks = new Map<string, number>();
   private started = false;
-  private lastCountdownAt: number | null = null;
-  private nextCountdownType = 0;
+  // gameID => start time handed out but not yet seen in a worker report
+  private readonly pendingStarts = new Map<string, number>();
   // False once the load balancer points at another deployment: this one only
   // finishes the games it has and stops scheduling public lobbies, so nobody
   // can farm empty games on the deployment that's being retired.
@@ -442,29 +438,36 @@ export class MasterLobbyService {
 
     const lobbiesByType = this.getAllLobbies().games;
 
-    // One countdown at a time, handed to the types in turn: with a timer per
-    // type the cards started a few seconds apart and the next map flashed by.
-    // The worker takes a moment to report a timer it was just given, so a
-    // fresh one counts as running too (else a second type gets one as well).
+    // Every type's next lobby gets a start time one gameCreationRate after the
+    // previous one, so the cards show real, different countdowns and the maps
+    // follow each other instead of starting together. The worker takes a
+    // moment to report a start time it was just given, so those are
+    // remembered here meanwhile (else the lobby would get a second one).
     const types = SCHEDULED_PUBLIC_GAME_TYPES;
-    const counting =
-      types.some((type) => lobbiesByType[type][0]?.startsAt !== undefined) ||
-      (this.lastCountdownAt !== null &&
-        Date.now() - this.lastCountdownAt < COUNTDOWN_REPORT_GRACE_MS);
-    if (!counting) {
-      for (let i = 0; i < types.length; i++) {
-        const index = (this.nextCountdownType + i) % types.length;
-        const nextLobby = lobbiesByType[types[index]][0];
-        if (nextLobby === undefined) continue;
-        this.sendMessageToWorker({
-          type: "updateLobby",
-          gameID: nextLobby.gameID,
-          startsAt: Date.now() + ServerEnv.gameCreationRate(),
-        });
-        this.lastCountdownAt = Date.now();
-        this.nextCountdownType = (index + 1) % types.length;
-        break;
+    const now = Date.now();
+    for (const [gameID, at] of this.pendingStarts) {
+      if (at < now - 5000) this.pendingStarts.delete(gameID);
+    }
+    let lastStart = now;
+    const unscheduled: InternalGameInfo[] = [];
+    for (const type of types) {
+      const next = lobbiesByType[type][0];
+      if (next === undefined) continue;
+      const known = next.startsAt ?? this.pendingStarts.get(next.gameID);
+      if (known === undefined) {
+        unscheduled.push(next);
+      } else {
+        lastStart = Math.max(lastStart, known);
       }
+    }
+    for (const lobby of unscheduled) {
+      lastStart += ServerEnv.gameCreationRate();
+      this.pendingStarts.set(lobby.gameID, lastStart);
+      this.sendMessageToWorker({
+        type: "updateLobby",
+        gameID: lobby.gameID,
+        startsAt: lastStart,
+      });
     }
 
     // Scheduled types only: hosted lobbies are started by their host, never

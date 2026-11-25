@@ -349,15 +349,14 @@ describe("MasterLobbyService paid queue order", () => {
     expect(losers).toEqual(["second"]);
   });
 
-  it("runs one countdown at a time and rotates between types", async () => {
+  it("spaces the start of each type's next lobby one rate apart", async () => {
     const { service, worker } = createService();
     const lobby = (id: string, type: InternalGameInfo["publicGameType"]) =>
       ({ gameID: id, numClients: 0, publicGameType: type }) as InternalGameInfo;
     const updates = () =>
       ((worker as any).send as ReturnType<typeof vi.fn>).mock.calls
         .map((c) => c[0])
-        .filter((m: any) => m.type === "updateLobby")
-        .map((m: any) => m.gameID);
+        .filter((m: any) => m.type === "updateLobby");
 
     worker.emit("message", {
       type: "lobbyList",
@@ -367,31 +366,34 @@ describe("MasterLobbyService paid queue order", () => {
         lobby("s1", "special"),
       ],
     });
+    const before = Date.now();
     await (service as any).maybeScheduleLobby();
-    expect(updates()).toEqual(["f1"]);
 
-    // the ffa one is now counting down, so nobody else gets a timer
+    const sent = updates();
+    expect(sent.map((m: any) => m.gameID)).toEqual(["f1", "t1", "s1"]);
+    const rate = 120_000;
+    expect(sent[0].startsAt).toBeGreaterThanOrEqual(before + rate);
+    expect(sent[1].startsAt - sent[0].startsAt).toBe(rate);
+    expect(sent[2].startsAt - sent[1].startsAt).toBe(rate);
+
+    // not reported yet: asking again must not hand out a second start time
+    await (service as any).maybeScheduleLobby();
+    expect(updates()).toHaveLength(3);
+
+    // the ffa lobby started and left; its replacement queues behind the rest
     worker.emit("message", {
       type: "lobbyList",
       lobbies: [
-        lobby("f1", "ffa"),
-        { ...lobby("t1", "team") },
-        lobby("s1", "special"),
-      ].map((l) =>
-        l.gameID === "f1" ? { ...l, startsAt: Date.now() + 5000 } : l,
-      ),
+        { ...lobby("t1", "team"), startsAt: sent[1].startsAt },
+        { ...lobby("s1", "special"), startsAt: sent[2].startsAt },
+        lobby("f2", "ffa"),
+      ],
     });
     await (service as any).maybeScheduleLobby();
-    expect(updates()).toEqual(["f1"]);
-
-    // it started and left, the timer passes to the next type
-    (service as any).lastCountdownAt = Date.now() - 20_000;
-    worker.emit("message", {
-      type: "lobbyList",
-      lobbies: [lobby("t1", "team"), lobby("s1", "special")],
-    });
-    await (service as any).maybeScheduleLobby();
-    expect(updates()).toEqual(["f1", "t1"]);
+    const after = updates();
+    expect(after).toHaveLength(4);
+    expect(after[3].gameID).toBe("f2");
+    expect(after[3].startsAt - sent[2].startsAt).toBe(rate);
   });
 
   it("gives the next countdown to a paid lobby over older ones", async () => {
