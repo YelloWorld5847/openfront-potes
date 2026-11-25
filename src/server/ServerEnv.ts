@@ -156,7 +156,7 @@ export class ServerEnv {
     return 100;
   }
   static gameCreationRate(): number {
-    return ServerEnv.gameEnv === GameEnv.Dev ? 10 * 1000 : 2 * 60 * 1000;
+    return ServerEnv.gameEnv === GameEnv.Dev ? 7 * 1000 : 2 * 60 * 1000;
   }
   static workerIndex(gameID: GameID): number {
     return simpleHash(gameID) % ServerEnv.numWorkers();
