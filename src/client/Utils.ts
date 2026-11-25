@@ -268,6 +268,13 @@ export function getActiveModifiers(
       chaos: true,
     });
   }
+  if (modifiers.isBlackMarket) {
+    result.push({
+      labelKey: "public_game_modifier.black_market_label",
+      badgeKey: "public_game_modifier.black_market",
+      chaos: true,
+    });
+  }
   return result;
 }
 

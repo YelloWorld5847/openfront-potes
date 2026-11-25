@@ -41,6 +41,7 @@ import { PseudoRandom } from "@openfront/engine-lib/PseudoRandom";
 import { simpleHash } from "@openfront/engine-lib/Util";
 import { EngineConfig } from "./configuration/EngineConfig";
 import { applyEditorCommand } from "./editor/EditorCommands";
+import { BlackMarketExecution } from "./execution/BlackMarketExecution";
 import { structureExecution } from "./execution/ConstructionExecution";
 import { ContractsExecution } from "./execution/ContractsExecution";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
@@ -286,6 +287,11 @@ export class GameRunner {
     const chaos = this.game.config().gameConfig().publicGameModifiers;
     if (chaos?.isVolcano) {
       this.game.addExecution(new VolcanoExecution(this.execManager.gameID()));
+    }
+    if (chaos?.isBlackMarket) {
+      this.game.addExecution(
+        new BlackMarketExecution(this.execManager.gameID()),
+      );
     }
     if (chaos?.isContracts) {
       this.game.addExecution(new ContractsExecution(this.execManager.gameID()));

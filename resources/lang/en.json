@@ -1249,6 +1249,10 @@
     "turnstile_error": "Verification error: {code}. Please refresh and try again."
   },
   "events_display": {
+    "market_boom": "Black market boom: all gold income x2 for a minute",
+    "market_jackpot": "Black market jackpot: all gold income x3 for a short while",
+    "market_crash": "Black market crash: all gold income halved for a minute",
+    "market_end": "The black market goes quiet again",
     "contract_ports": "Secret contract: own 3 ports. Reward: {gold} gold",
     "contract_cities": "Secret contract: own 4 cities. Reward: {gold} gold",
     "contract_silo": "Secret contract: own a missile silo. Reward: {gold} gold",
@@ -2778,6 +2782,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Starting Gold",
     "starting_gold_label": "Starting Gold",
+    "black_market": "Black Market",
+    "black_market_label": "Black Market",
     "contracts": "Secret Contracts",
     "contracts_label": "Secret Contracts",
     "volcano": "Volcano",

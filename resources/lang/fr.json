@@ -887,6 +887,10 @@
     "turnstile_error": "Erreur de vérification : {code}. Merci d'actualiser et de réessayer."
   },
   "events_display": {
+    "market_boom": "Boom du marché noir : tous les revenus d'or x2 pendant une minute",
+    "market_jackpot": "Jackpot du marché noir : tous les revenus d'or x3 un court instant",
+    "market_crash": "Krach du marché noir : tous les revenus d'or divisés par deux pendant une minute",
+    "market_end": "Le marché noir se calme",
     "contract_ports": "Contrat secret : possède 3 ports. Récompense : {gold} or",
     "contract_cities": "Contrat secret : possède 4 villes. Récompense : {gold} or",
     "contract_silo": "Contrat secret : possède un silo de missiles. Récompense : {gold} or",
@@ -2111,6 +2115,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Or de départ",
     "starting_gold_label": "Or de départ",
+    "black_market": "Marché noir",
+    "black_market_label": "Marché noir",
     "contracts": "Contrats secrets",
     "contracts_label": "Contrats secrets",
     "volcano": "Volcan",

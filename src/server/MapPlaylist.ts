@@ -81,7 +81,8 @@ type ModifierKey =
   | "isWaterNukes"
   | "isDoomsdayClock"
   | "isVolcano"
-  | "isContracts";
+  | "isContracts"
+  | "isBlackMarket";
 
 // Each entry represents one "ticket" in the pool. More tickets = higher chance of selection.
 // Weights are roughly informed by the community "favorite modifier" poll.
@@ -102,6 +103,7 @@ const SPECIAL_MODIFIER_POOL: ModifierKey[] = [
   ...Array<ModifierKey>(4).fill("isDoomsdayClock"),
   ...Array<ModifierKey>(5).fill("isVolcano"),
   ...Array<ModifierKey>(5).fill("isContracts"),
+  ...Array<ModifierKey>(4).fill("isBlackMarket"),
 ];
 
 // Speeds the Doomsday Clock can roll at when it lands in the rotation. Picked
@@ -357,6 +359,7 @@ export class MapPlaylist {
       isDoomsdayClock,
       isVolcano,
       isContracts,
+      isBlackMarket,
     } = poolResult;
 
     // Apply per-map forced modifiers (already rolled and respecting excludedModifiers).
@@ -376,6 +379,7 @@ export class MapPlaylist {
     if (appliedForced.has("isDoomsdayClock")) isDoomsdayClock = true;
     if (appliedForced.has("isVolcano")) isVolcano = true;
     if (appliedForced.has("isContracts")) isContracts = true;
+    if (appliedForced.has("isBlackMarket")) isBlackMarket = true;
 
     // Crowded modifier: if the map's biggest player count (first number of mapPlayerCounts) is 60 or lower (small maps),
     // set player count to CROWDED_PLAYER_COUNT (or CROWDED_COMPACT_PLAYER_COUNT if compact map is also enabled)
@@ -399,7 +403,8 @@ export class MapPlaylist {
           !isWaterNukes &&
           !isDoomsdayClock &&
           !isVolcano &&
-          !isContracts
+          !isContracts &&
+          !isBlackMarket
         ) {
           excludedModifiers.push("isCrowded");
           const fallback = this.getRandomSpecialGameModifiers(
@@ -419,6 +424,7 @@ export class MapPlaylist {
             isDoomsdayClock,
             isVolcano,
             isContracts,
+            isBlackMarket,
           } = fallback);
           ({ isHardNations } = fallback);
         }
@@ -489,6 +495,7 @@ export class MapPlaylist {
         isDoomsdayClock,
         isVolcano,
         isContracts,
+        isBlackMarket,
       },
       // Rolled into the rotation: enable the anti-stall clock at a speed picked
       // per game so the pacing varies across the presets.
@@ -806,6 +813,7 @@ export class MapPlaylist {
       isDoomsdayClock: selected.has("isDoomsdayClock") || undefined,
       isVolcano: selected.has("isVolcano") || undefined,
       isContracts: selected.has("isContracts") || undefined,
+      isBlackMarket: selected.has("isBlackMarket") || undefined,
     };
   }
 

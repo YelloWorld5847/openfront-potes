@@ -184,6 +184,14 @@ export class EngineConfig extends Config {
   goldMultiplier(): number {
     return this._gameConfig.goldMultiplier ?? 1;
   }
+  // moved by the black market event, 1 the rest of the time
+  private marketMultiplier = 1;
+  setMarketMultiplier(multiplier: number): void {
+    this.marketMultiplier = multiplier;
+  }
+  getMarketMultiplier(): number {
+    return this.marketMultiplier;
+  }
   startingGold(playerInfo: PlayerInfo): Gold {
     if (playerInfo.playerType === PlayerType.Bot) {
       return 0n;
@@ -421,9 +429,9 @@ export class EngineConfig extends Config {
     const base = this.goldMultiplier();
     const hc = this._gameConfig.hostCheats;
     if (hc?.goldMultiplier && player.isLobbyCreator()) {
-      return hc.goldMultiplier;
+      return hc.goldMultiplier * this.marketMultiplier;
     }
-    return base;
+    return base * this.marketMultiplier;
   }
 
   public conquerGoldAmount(captured: PlayerLike): Gold {
