@@ -1249,6 +1249,8 @@
     "turnstile_error": "Verification error: {code}. Please refresh and try again."
   },
   "events_display": {
+    "treasures_hidden": "Treasures are hidden on the map: little gold plots. Take one to claim the gold",
+    "treasure_found": "Treasure found! +{gold} gold",
     "market_boom": "Black market boom: all gold income x2 for a minute",
     "market_jackpot": "Black market jackpot: all gold income x3 for a short while",
     "market_crash": "Black market crash: all gold income halved for a minute",
@@ -2786,6 +2788,8 @@
     "black_market_label": "Black Market",
     "contracts": "Secret Contracts",
     "contracts_label": "Secret Contracts",
+    "treasures": "Hidden Treasures",
+    "treasures_label": "Hidden Treasures",
     "volcano": "Volcano",
     "volcano_label": "Volcano",
     "water_nukes": "Water Nukes"

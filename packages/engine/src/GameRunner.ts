@@ -49,6 +49,7 @@ import { Executor } from "./execution/ExecutionManager";
 import { PlayerExecution } from "./execution/PlayerExecution";
 import { RecomputeRailClusterExecution } from "./execution/RecomputeRailClusterExecution";
 import { SpawnTimerExecution } from "./execution/SpawnTimerExecution";
+import { TreasureExecution } from "./execution/TreasureExecution";
 import { VolcanoExecution } from "./execution/VolcanoExecution";
 import { WarshipExecution } from "./execution/WarshipExecution";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
@@ -287,6 +288,9 @@ export class GameRunner {
     const chaos = this.game.config().gameConfig().publicGameModifiers;
     if (chaos?.isVolcano) {
       this.game.addExecution(new VolcanoExecution(this.execManager.gameID()));
+    }
+    if (chaos?.isTreasures) {
+      this.game.addExecution(new TreasureExecution(this.execManager.gameID()));
     }
     if (chaos?.isBlackMarket) {
       this.game.addExecution(

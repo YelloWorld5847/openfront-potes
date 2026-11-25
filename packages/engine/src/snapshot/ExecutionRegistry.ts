@@ -41,6 +41,7 @@ import { TradeShipExecutionSnapshot } from "../execution/TradeShipExecution";
 import { TrainExecutionSnapshot } from "../execution/TrainExecution";
 import { TrainStationExecutionSnapshot } from "../execution/TrainStationExecution";
 import { TransportShipExecutionSnapshot } from "../execution/TransportShipExecution";
+import { TreasureExecutionSnapshot } from "../execution/TreasureExecution";
 import { TribeExecutionSnapshot } from "../execution/TribeExecution";
 import { UpgradeStructureExecutionSnapshot } from "../execution/UpgradeStructureExecution";
 import { VolcanoExecutionSnapshot } from "../execution/VolcanoExecution";
@@ -98,6 +99,7 @@ export const EXECUTION_SNAPSHOT_TYPES = [
   TrainExecutionSnapshot,
   TrainStationExecutionSnapshot,
   TransportShipExecutionSnapshot,
+  TreasureExecutionSnapshot,
   TribeExecutionSnapshot,
   UpgradeStructureExecutionSnapshot,
   VolcanoExecutionSnapshot,

@@ -887,6 +887,8 @@
     "turnstile_error": "Erreur de vérification : {code}. Merci d'actualiser et de réessayer."
   },
   "events_display": {
+    "treasures_hidden": "Des trésors sont cachés sur la carte : de petites parcelles dorées. Prends-en une pour gagner l'or",
+    "treasure_found": "Trésor trouvé ! +{gold} or",
     "market_boom": "Boom du marché noir : tous les revenus d'or x2 pendant une minute",
     "market_jackpot": "Jackpot du marché noir : tous les revenus d'or x3 un court instant",
     "market_crash": "Krach du marché noir : tous les revenus d'or divisés par deux pendant une minute",
@@ -2119,6 +2121,8 @@
     "black_market_label": "Marché noir",
     "contracts": "Contrats secrets",
     "contracts_label": "Contrats secrets",
+    "treasures": "Trésors cachés",
+    "treasures_label": "Trésors cachés",
     "volcano": "Volcan",
     "volcano_label": "Volcan",
     "water_nukes": "Bombes à eau"

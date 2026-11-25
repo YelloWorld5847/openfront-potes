@@ -275,6 +275,13 @@ export function getActiveModifiers(
       chaos: true,
     });
   }
+  if (modifiers.isTreasures) {
+    result.push({
+      labelKey: "public_game_modifier.treasures_label",
+      badgeKey: "public_game_modifier.treasures",
+      chaos: true,
+    });
+  }
   return result;
 }
 

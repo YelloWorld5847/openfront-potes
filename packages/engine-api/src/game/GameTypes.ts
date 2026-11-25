@@ -191,6 +191,8 @@ export interface PublicGameModifiers {
 
 // name of the lava bot the volcano modifier spawns, the client colors it by name
 export const VOLCANO_NAME = "Volcan";
+// same for the little gold plots the treasures modifier hides on the map
+export const TREASURE_NAME = "Trésor";
 
 // Largest bulk-purchase amount an intent may carry (mirrored by the intent
 // schemas' max). Also the length of BuildableUnit.upgradeCosts.
