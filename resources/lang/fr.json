@@ -887,6 +887,12 @@
     "turnstile_error": "Erreur de vérification : {code}. Merci d'actualiser et de réessayer."
   },
   "events_display": {
+    "contract_ports": "Contrat secret : possède 3 ports. Récompense : {gold} or",
+    "contract_cities": "Contrat secret : possède 4 villes. Récompense : {gold} or",
+    "contract_silo": "Contrat secret : possède un silo de missiles. Récompense : {gold} or",
+    "contract_warships": "Contrat secret : possède 3 navires de guerre. Récompense : {gold} or",
+    "contract_land": "Contrat secret : tiens 5 % des terres. Récompense : {gold} or",
+    "contract_done": "Contrat rempli ! +{gold} or",
     "about_to_expire": "Votre alliance avec {name} est sur le point d'expirer!",
     "accept_alliance": "Accepter",
     "alliance_accepted": "a accepté",
@@ -2105,6 +2111,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Or de départ",
     "starting_gold_label": "Or de départ",
+    "contracts": "Contrats secrets",
+    "contracts_label": "Contrats secrets",
     "volcano": "Volcan",
     "volcano_label": "Volcan",
     "water_nukes": "Bombes à eau"

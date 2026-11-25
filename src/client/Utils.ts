@@ -261,6 +261,13 @@ export function getActiveModifiers(
       chaos: true,
     });
   }
+  if (modifiers.isContracts) {
+    result.push({
+      labelKey: "public_game_modifier.contracts_label",
+      badgeKey: "public_game_modifier.contracts",
+      chaos: true,
+    });
+  }
   return result;
 }
 

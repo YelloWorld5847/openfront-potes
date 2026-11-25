@@ -1249,6 +1249,12 @@
     "turnstile_error": "Verification error: {code}. Please refresh and try again."
   },
   "events_display": {
+    "contract_ports": "Secret contract: own 3 ports. Reward: {gold} gold",
+    "contract_cities": "Secret contract: own 4 cities. Reward: {gold} gold",
+    "contract_silo": "Secret contract: own a missile silo. Reward: {gold} gold",
+    "contract_warships": "Secret contract: own 3 warships. Reward: {gold} gold",
+    "contract_land": "Secret contract: hold 5% of the land. Reward: {gold} gold",
+    "contract_done": "Contract fulfilled! +{gold} gold",
     "about_to_expire": "Your alliance with {name} is about to expire!",
     "accept_alliance": "Accept",
     "alliance_accepted": "accepted",
@@ -2772,6 +2778,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Starting Gold",
     "starting_gold_label": "Starting Gold",
+    "contracts": "Secret Contracts",
+    "contracts_label": "Secret Contracts",
     "volcano": "Volcano",
     "volcano_label": "Volcano",
     "water_nukes": "Water Nukes"

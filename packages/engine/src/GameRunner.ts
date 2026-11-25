@@ -42,6 +42,7 @@ import { simpleHash } from "@openfront/engine-lib/Util";
 import { EngineConfig } from "./configuration/EngineConfig";
 import { applyEditorCommand } from "./editor/EditorCommands";
 import { structureExecution } from "./execution/ConstructionExecution";
+import { ContractsExecution } from "./execution/ContractsExecution";
 import { DoomsdayClockExecution } from "./execution/DoomsdayClockExecution";
 import { Executor } from "./execution/ExecutionManager";
 import { PlayerExecution } from "./execution/PlayerExecution";
@@ -285,6 +286,9 @@ export class GameRunner {
     const chaos = this.game.config().gameConfig().publicGameModifiers;
     if (chaos?.isVolcano) {
       this.game.addExecution(new VolcanoExecution(this.execManager.gameID()));
+    }
+    if (chaos?.isContracts) {
+      this.game.addExecution(new ContractsExecution(this.execManager.gameID()));
     }
   }
 

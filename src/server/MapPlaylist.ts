@@ -80,7 +80,8 @@ type ModifierKey =
   | "isPeaceTime"
   | "isWaterNukes"
   | "isDoomsdayClock"
-  | "isVolcano";
+  | "isVolcano"
+  | "isContracts";
 
 // Each entry represents one "ticket" in the pool. More tickets = higher chance of selection.
 // Weights are roughly informed by the community "favorite modifier" poll.
@@ -100,6 +101,7 @@ const SPECIAL_MODIFIER_POOL: ModifierKey[] = [
   ...Array<ModifierKey>(4).fill("isWaterNukes"),
   ...Array<ModifierKey>(4).fill("isDoomsdayClock"),
   ...Array<ModifierKey>(5).fill("isVolcano"),
+  ...Array<ModifierKey>(5).fill("isContracts"),
 ];
 
 // Speeds the Doomsday Clock can roll at when it lands in the rotation. Picked
@@ -354,6 +356,7 @@ export class MapPlaylist {
       isWaterNukes,
       isDoomsdayClock,
       isVolcano,
+      isContracts,
     } = poolResult;
 
     // Apply per-map forced modifiers (already rolled and respecting excludedModifiers).
@@ -372,6 +375,7 @@ export class MapPlaylist {
     if (appliedForced.has("isWaterNukes")) isWaterNukes = true;
     if (appliedForced.has("isDoomsdayClock")) isDoomsdayClock = true;
     if (appliedForced.has("isVolcano")) isVolcano = true;
+    if (appliedForced.has("isContracts")) isContracts = true;
 
     // Crowded modifier: if the map's biggest player count (first number of mapPlayerCounts) is 60 or lower (small maps),
     // set player count to CROWDED_PLAYER_COUNT (or CROWDED_COMPACT_PLAYER_COUNT if compact map is also enabled)
@@ -394,7 +398,8 @@ export class MapPlaylist {
           !isPeaceTime &&
           !isWaterNukes &&
           !isDoomsdayClock &&
-          !isVolcano
+          !isVolcano &&
+          !isContracts
         ) {
           excludedModifiers.push("isCrowded");
           const fallback = this.getRandomSpecialGameModifiers(
@@ -413,6 +418,7 @@ export class MapPlaylist {
             isWaterNukes,
             isDoomsdayClock,
             isVolcano,
+            isContracts,
           } = fallback);
           ({ isHardNations } = fallback);
         }
@@ -482,6 +488,7 @@ export class MapPlaylist {
         isWaterNukes,
         isDoomsdayClock,
         isVolcano,
+        isContracts,
       },
       // Rolled into the rotation: enable the anti-stall clock at a speed picked
       // per game so the pacing varies across the presets.
@@ -798,6 +805,7 @@ export class MapPlaylist {
       isWaterNukes: selected.has("isWaterNukes") || undefined,
       isDoomsdayClock: selected.has("isDoomsdayClock") || undefined,
       isVolcano: selected.has("isVolcano") || undefined,
+      isContracts: selected.has("isContracts") || undefined,
     };
   }
 
