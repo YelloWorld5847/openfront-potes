@@ -401,3 +401,29 @@ describe("RenderHtml environment-only render", () => {
     expect(data.name).toBe("OpenFront");
   });
 });
+
+describe("real index.html", () => {
+  const indexPath = path.join(__dirname, "../../index.html");
+
+  beforeEach(() => {
+    stubIdentity();
+    vi.stubEnv("TURNSTILE_SITE_KEY", "test-key");
+    vi.stubEnv("DOMAIN", "example.com");
+    vi.stubEnv("GIT_COMMIT", "abc");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    clearAppShellContentCache();
+  });
+
+  test("renders and carries the standalone flag only when asked", async () => {
+    const plain = await renderHtmlContent(indexPath);
+    expect(plain).toContain("window.BOOTSTRAP_CONFIG");
+    expect(plain).not.toContain("standalone: true");
+
+    vi.stubEnv("STANDALONE", "1");
+    const standalone = await renderHtmlContent(indexPath);
+    expect(standalone).toContain("standalone: true,");
+  });
+});
