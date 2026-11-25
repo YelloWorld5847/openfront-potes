@@ -282,6 +282,13 @@ export function getActiveModifiers(
       chaos: true,
     });
   }
+  if (modifiers.isFog) {
+    result.push({
+      labelKey: "public_game_modifier.fog_label",
+      badgeKey: "public_game_modifier.fog",
+      chaos: true,
+    });
+  }
   return result;
 }
 

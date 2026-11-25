@@ -2104,6 +2104,8 @@
     "disable_alliances_label": "Alliances",
     "doomsday_clock": "Mort subite",
     "doomsday_clock_with_speed": "Mort subite : {speed}",
+    "fog": "Brouillard de guerre",
+    "fog_label": "Brouillard de guerre",
     "gold_multiplier": "x{amount} Multiplicateur d'Or",
     "hard_nations": "Nations difficiles",
     "nukes_disabled": "Bombes nucléaires désactivées",

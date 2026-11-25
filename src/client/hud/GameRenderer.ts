@@ -3,6 +3,7 @@ import { Controller } from "../Controller";
 import { AmbienceController } from "../controllers/AmbienceController";
 import { AttackingTroopsController } from "../controllers/AttackingTroopsController";
 import { BuildPreviewController } from "../controllers/BuildPreviewController";
+import { FogController } from "../controllers/FogController";
 import { HoverHighlightController } from "../controllers/HoverHighlightController";
 import { LiveStatsController } from "../controllers/LiveStatsController";
 import { MapLayerController } from "../controllers/MapLayerController";
@@ -347,6 +348,7 @@ export function createRenderer(
     ),
     new HoverHighlightController(game, eventBus, transformHandler, view),
     new LiveStatsController(game, eventBus),
+    new FogController(game, transformHandler),
     new StructureHighlightController(eventBus, view),
     new ViewModeController(eventBus, view),
     new AttackingTroopsController(game, eventBus, userSettings, view),
