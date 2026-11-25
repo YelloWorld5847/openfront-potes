@@ -15,6 +15,7 @@ import {
   sendCheckin,
 } from "./ClusterCheckin";
 import { getDescriptor } from "./DesktopRelease";
+import { startKeepAlive } from "./KeepAlive";
 import {
   coordinatorUrl,
   LobbyCoordinatorClient,
@@ -27,12 +28,14 @@ import { setNoStoreHeaders } from "./NoStoreHeaders";
 import { startPolling } from "./PollingLoop";
 import { renderAppShell } from "./RenderHtml";
 import { ServerEnv } from "./ServerEnv";
+import { registerStandaloneApi } from "./StandaloneApi";
 import { applyStaticAssetCacheControl } from "./StaticAssetCache";
 
 const playlist = new MapPlaylist();
 let lobbyService: MasterLobbyService;
 
 const app = express();
+const standaloneApi = express.Router();
 const server = http.createServer(app);
 
 const log = logger.child({ comp: "m" });
@@ -283,10 +286,17 @@ export async function startMaster() {
       `Restarted worker ${workerId} (New PID: ${newWorker.process.pid})`,
     );
   });
+  if (ServerEnv.isStandalone()) {
+    await registerStandaloneApi(standaloneApi, {
+      issuer: ServerEnv.tokenIssuer(),
+      audience: ServerEnv.jwtAudience(),
+    });
+  }
   const PORT = 3000;
   server.listen(PORT, () => {
     log.info(`Master HTTP server listening on port ${PORT}`);
   });
+  startKeepAlive();
 
   // Register with the API and keep checking in (docs/MultiServer.md,
   // "Server list v2"): the API's list is what clients read to find a
@@ -334,6 +344,8 @@ app.get("/api/health", (_req, res) => {
     res.status(503).json({ status: "unavailable", instanceId });
   }
 });
+
+app.use(standaloneApi);
 
 // SPA fallback route
 app.get("/{*splat}", async function (_req, res) {

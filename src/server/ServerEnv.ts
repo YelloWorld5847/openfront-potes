@@ -111,9 +111,23 @@ export class ServerEnv {
   }
   static jwtIssuer(): string {
     const audience = ServerEnv.jwtAudience();
-    return audience === "localhost"
-      ? "http://localhost:8787"
-      : `https://api.${audience}`;
+    if (audience === "localhost") return "http://localhost:8787";
+    if (ServerEnv.isStandalone()) return "http://127.0.0.1:3000";
+    return `https://api.${audience}`;
+  }
+  // dev env on a real domain: no external api, the master answers the api
+  // calls itself (StandaloneApi.ts)
+  static isStandalone(): boolean {
+    return (
+      ServerEnv.gameEnv === GameEnv.Dev &&
+      ServerEnv.jwtAudience() !== "localhost"
+    );
+  }
+  // what the "iss" of our tokens says, which is the public origin the
+  // browser sees, not the loopback address workers call
+  static tokenIssuer(): string {
+    if (!ServerEnv.isStandalone()) return ServerEnv.jwtIssuer();
+    return process.env.PUBLIC_ORIGIN || `https://${ServerEnv.jwtAudience()}`;
   }
   static async jwkPublicKey(): Promise<JWK> {
     if (ServerEnv.publicKey) return ServerEnv.publicKey;

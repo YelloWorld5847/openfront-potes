@@ -33,7 +33,7 @@ export async function verifyClientToken(
     }
   }
   try {
-    const issuer = ServerEnv.jwtIssuer();
+    const issuer = ServerEnv.tokenIssuer();
     const audience = ServerEnv.jwtAudience();
     const key = await ServerEnv.jwkPublicKey();
     const { payload } = await jwtVerify(token, key, {

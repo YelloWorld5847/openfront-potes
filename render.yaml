@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: openfront-potes
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "80"
+      - key: GAME_ENV
+        value: dev
+      - key: NUM_WORKERS
+        value: "1"
+      - key: INSTANCE_LETTER
+        value: a
+      - key: TURNSTILE_SITE_KEY
+        value: 1x00000000000000000000AA
+      - key: API_KEY
+        value: not-used-in-friends-mode
