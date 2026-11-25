@@ -140,6 +140,8 @@ export interface ModifierInfo {
   value?: number;
   /** Pre-formatted display string (used instead of renderNumber when provided) */
   formattedValue?: string;
+  /** One of our own chaos modifiers, drawn in its own color */
+  chaos?: boolean;
 }
 
 /**
@@ -252,6 +254,13 @@ export function getActiveModifiers(
     }
     result.push(info);
   }
+  if (modifiers.isVolcano) {
+    result.push({
+      labelKey: "public_game_modifier.volcano_label",
+      badgeKey: "public_game_modifier.volcano",
+      chaos: true,
+    });
+  }
   return result;
 }
 
@@ -265,6 +274,16 @@ export function getModifierLabels(
   return getActiveModifiers(modifiers, doomsdayClockSpeed).map((m) =>
     translateText(m.badgeKey, m.badgeParams),
   );
+}
+
+export function getModifierPills(
+  modifiers: PublicGameModifiers | undefined,
+  doomsdayClockSpeed?: DoomsdayClockSpeed,
+): { label: string; chaos: boolean }[] {
+  return getActiveModifiers(modifiers, doomsdayClockSpeed).map((m) => ({
+    label: translateText(m.badgeKey, m.badgeParams),
+    chaos: m.chaos === true,
+  }));
 }
 
 export function renderDuration(totalSeconds: number): string {

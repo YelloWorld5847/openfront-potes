@@ -127,7 +127,10 @@ export class ServerEnv {
   // browser sees, not the loopback address workers call
   static tokenIssuer(): string {
     if (!ServerEnv.isStandalone()) return ServerEnv.jwtIssuer();
-    return process.env.PUBLIC_ORIGIN || `https://${ServerEnv.jwtAudience()}`;
+    const origin = process.env.PUBLIC_ORIGIN;
+    return origin !== undefined && origin !== ""
+      ? origin
+      : `https://${ServerEnv.jwtAudience()}`;
   }
   static async jwkPublicKey(): Promise<JWK> {
     if (ServerEnv.publicKey) return ServerEnv.publicKey;

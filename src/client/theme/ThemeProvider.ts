@@ -2,6 +2,7 @@ import {
   ColoredTeams,
   PlayerType,
   Team,
+  VOLCANO_NAME,
 } from "@openfront/engine-api/game/GameTypes";
 import { simpleHash } from "@openfront/engine-lib/Util";
 import { Colord, colord, LabaColor } from "colord";
@@ -81,6 +82,8 @@ function buildTeamPalettes(settings: ThemeSettings): Map<Team, Colord[]> {
  * allocators and the territory/team color dispatch, plus the color math every
  * theme shares — a new theme is just a new theme JSON.
  */
+const LAVA_COLOR = colord("#ff4d00");
+
 export class SettingsTheme implements Theme {
   private humanColorAllocator: ColorAllocator;
   private nationColorAllocator: ColorAllocator;
@@ -161,6 +164,7 @@ export class SettingsTheme implements Theme {
       return this.humanColorAllocator.assignColor(player.id());
     }
     if (player.type() === PlayerType.Bot) {
+      if (player.name() === VOLCANO_NAME) return LAVA_COLOR;
       if (this.useClassicBotColors) {
         return this.classicBotColorAllocator.assignColor(player.id());
       }

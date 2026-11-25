@@ -6,7 +6,7 @@ import { responseHasLinkedIdentity } from "../AccountIdentity";
 import { gamePortal } from "../GamePortal";
 import { terrainMapFileLoader } from "../TerrainMapFileLoader";
 import { notableLobbySettings } from "../utilities/LobbySettingsSummary";
-import { getMapName, getModifierLabels, translateText } from "../Utils";
+import { getMapName, getModifierPills, translateText } from "../Utils";
 import "./ConfirmDialog";
 import { hideFloatingTooltip, showFloatingTooltip } from "./FloatingTooltip";
 
@@ -165,6 +165,9 @@ export interface LobbyCardOptions {
  */
 const PILL =
   "rounded bg-malibu-blue px-2 py-1 text-xs font-bold tracking-widest text-white";
+// our chaos modifiers read as a different family from the stock ones
+const CHAOS_PILL =
+  "rounded bg-orange-600 px-2 py-1 text-xs font-bold tracking-widest text-white";
 // No backdrop-filter anywhere in the card: under a transformed ancestor
 // Chrome clips it with a separate mask and the map leaks at the corners.
 const BADGE = "rounded bg-black/70";
@@ -213,10 +216,10 @@ export function lobbyCard({
       ? String(lobby.numClients)
       : `${lobby.numClients}/${capacity}`;
   // Longest first, so on a short card the pills that say the most stay legible.
-  const modifiers = getModifierLabels(
+  const modifiers = getModifierPills(
     lobby.gameConfig?.publicGameModifiers,
     lobby.gameConfig?.doomsdayClock?.speed,
-  ).sort((a, b) => b.length - a.length);
+  ).sort((a, b) => b.label.length - a.label.length);
   const trustedOnly = lobby.gameConfig?.trusted === true;
   const custom = lobby.custom === true;
 
@@ -264,7 +267,12 @@ export function lobbyCard({
                 >`
               : nothing
           }
-          ${modifiers.map((label) => html`<span class=${PILL}>${label}</span>`)}
+          ${modifiers.map(
+            (m) =>
+              html`<span class=${m.chaos ? CHAOS_PILL : PILL}
+                >${m.label}</span
+              >`,
+          )}
         </div>
         <span
           class="${PILL} shrink-0 tabular-nums ${

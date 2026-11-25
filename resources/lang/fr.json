@@ -2105,6 +2105,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Or de départ",
     "starting_gold_label": "Or de départ",
+    "volcano": "Volcan",
+    "volcano_label": "Volcan",
     "water_nukes": "Bombes à eau"
   },
   "public_lobby": {

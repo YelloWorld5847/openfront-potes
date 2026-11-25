@@ -291,6 +291,11 @@ export const GameConfigSchema = z.compile(
         isPeaceTime: z.boolean().optional(),
         isWaterNukes: z.boolean().optional(),
         isDoomsdayClock: z.boolean().optional(),
+        isVolcano: z.boolean().optional(),
+        isContracts: z.boolean().optional(),
+        isBlackMarket: z.boolean().optional(),
+        isTreasures: z.boolean().optional(),
+        isFog: z.boolean().optional(),
       })
       .optional(),
     nations: zb.union(

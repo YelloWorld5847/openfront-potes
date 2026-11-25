@@ -47,6 +47,7 @@ import { Executor } from "./execution/ExecutionManager";
 import { PlayerExecution } from "./execution/PlayerExecution";
 import { RecomputeRailClusterExecution } from "./execution/RecomputeRailClusterExecution";
 import { SpawnTimerExecution } from "./execution/SpawnTimerExecution";
+import { VolcanoExecution } from "./execution/VolcanoExecution";
 import { WarshipExecution } from "./execution/WarshipExecution";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
 import { Game, Player } from "./game/Game";
@@ -280,6 +281,10 @@ export class GameRunner {
       this.game.addExecution(
         new RecomputeRailClusterExecution(this.game.railNetwork()),
       );
+    }
+    const chaos = this.game.config().gameConfig().publicGameModifiers;
+    if (chaos?.isVolcano) {
+      this.game.addExecution(new VolcanoExecution(this.execManager.gameID()));
     }
   }
 

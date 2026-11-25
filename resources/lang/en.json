@@ -2772,6 +2772,8 @@
     "sams_disabled_label": "SAMs",
     "starting_gold": "{amount}M Starting Gold",
     "starting_gold_label": "Starting Gold",
+    "volcano": "Volcano",
+    "volcano_label": "Volcano",
     "water_nukes": "Water Nukes"
   },
   "public_lobby": {

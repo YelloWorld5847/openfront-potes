@@ -181,7 +181,16 @@ export interface PublicGameModifiers {
   isPeaceTime?: boolean;
   isWaterNukes?: boolean;
   isDoomsdayClock?: boolean;
+  // our own chaos modifiers, shown as their own badge color in the lobby
+  isVolcano?: boolean;
+  isContracts?: boolean;
+  isBlackMarket?: boolean;
+  isTreasures?: boolean;
+  isFog?: boolean;
 }
+
+// name of the lava bot the volcano modifier spawns, the client colors it by name
+export const VOLCANO_NAME = "Volcan";
 
 // Largest bulk-purchase amount an intent may carry (mirrored by the intent
 // schemas' max). Also the length of BuildableUnit.upgradeCosts.
