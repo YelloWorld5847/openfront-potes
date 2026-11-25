@@ -349,6 +349,51 @@ describe("MasterLobbyService paid queue order", () => {
     expect(losers).toEqual(["second"]);
   });
 
+  it("runs one countdown at a time and rotates between types", async () => {
+    const { service, worker } = createService();
+    const lobby = (id: string, type: InternalGameInfo["publicGameType"]) =>
+      ({ gameID: id, numClients: 0, publicGameType: type }) as InternalGameInfo;
+    const updates = () =>
+      ((worker as any).send as ReturnType<typeof vi.fn>).mock.calls
+        .map((c) => c[0])
+        .filter((m: any) => m.type === "updateLobby")
+        .map((m: any) => m.gameID);
+
+    worker.emit("message", {
+      type: "lobbyList",
+      lobbies: [
+        lobby("f1", "ffa"),
+        lobby("t1", "team"),
+        lobby("s1", "special"),
+      ],
+    });
+    await (service as any).maybeScheduleLobby();
+    expect(updates()).toEqual(["f1"]);
+
+    // the ffa one is now counting down, so nobody else gets a timer
+    worker.emit("message", {
+      type: "lobbyList",
+      lobbies: [
+        lobby("f1", "ffa"),
+        { ...lobby("t1", "team") },
+        lobby("s1", "special"),
+      ].map((l) =>
+        l.gameID === "f1" ? { ...l, startsAt: Date.now() + 5000 } : l,
+      ),
+    });
+    await (service as any).maybeScheduleLobby();
+    expect(updates()).toEqual(["f1"]);
+
+    // it started and left, the timer passes to the next type
+    (service as any).lastCountdownAt = Date.now() - 20_000;
+    worker.emit("message", {
+      type: "lobbyList",
+      lobbies: [lobby("t1", "team"), lobby("s1", "special")],
+    });
+    await (service as any).maybeScheduleLobby();
+    expect(updates()).toEqual(["f1", "t1"]);
+  });
+
   it("gives the next countdown to a paid lobby over older ones", async () => {
     const { service, worker } = createService();
     worker.emit("message", {

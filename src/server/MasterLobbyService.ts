@@ -37,6 +37,10 @@ export interface MasterLobbyServiceOptions {
  */
 const QUEUED_LOBBIES_PER_TYPE = 12;
 
+// how long a countdown just handed out is trusted before the workers' lobby
+// reports have had time to show it
+const COUNTDOWN_REPORT_GRACE_MS = 3000;
+
 export class MasterLobbyService {
   private readonly workers = new Map<number, Worker>();
   // Worker id => the lobbies it owns.
@@ -51,6 +55,8 @@ export class MasterLobbyService {
   // delisted.
   private readonly loserStreaks = new Map<string, number>();
   private started = false;
+  private lastCountdownAt: number | null = null;
+  private nextCountdownType = 0;
   // False once the load balancer points at another deployment: this one only
   // finishes the games it has and stops scheduling public lobbies, so nobody
   // can farm empty games on the deployment that's being retired.
@@ -436,23 +442,35 @@ export class MasterLobbyService {
 
     const lobbiesByType = this.getAllLobbies().games;
 
-    // Scheduled types only: hosted lobbies are started by their host, never
-    // given a countdown or replaced by the master.
-    for (const type of SCHEDULED_PUBLIC_GAME_TYPES) {
-      const lobbies = lobbiesByType[type];
-
-      // Always ensure the next lobby has a timer, even if the queue is
-      // already full. This prevents a race where two lobbies are created before
-      // either receives a startsAt (IPC round-trip delay), leaving both stuck
-      // without a countdown.
-      const nextLobby = lobbies[0];
-      if (nextLobby && nextLobby.startsAt === undefined) {
+    // One countdown at a time, handed to the types in turn: with a timer per
+    // type the cards started a few seconds apart and the next map flashed by.
+    // The worker takes a moment to report a timer it was just given, so a
+    // fresh one counts as running too (else a second type gets one as well).
+    const types = SCHEDULED_PUBLIC_GAME_TYPES;
+    const counting =
+      types.some((type) => lobbiesByType[type][0]?.startsAt !== undefined) ||
+      (this.lastCountdownAt !== null &&
+        Date.now() - this.lastCountdownAt < COUNTDOWN_REPORT_GRACE_MS);
+    if (!counting) {
+      for (let i = 0; i < types.length; i++) {
+        const index = (this.nextCountdownType + i) % types.length;
+        const nextLobby = lobbiesByType[types[index]][0];
+        if (nextLobby === undefined) continue;
         this.sendMessageToWorker({
           type: "updateLobby",
           gameID: nextLobby.gameID,
           startsAt: Date.now() + ServerEnv.gameCreationRate(),
         });
+        this.lastCountdownAt = Date.now();
+        this.nextCountdownType = (index + 1) % types.length;
+        break;
       }
+    }
+
+    // Scheduled types only: hosted lobbies are started by their host, never
+    // given a countdown or replaced by the master.
+    for (const type of types) {
+      const lobbies = lobbiesByType[type];
 
       // An inactive deployment still starts what it already queued (the
       // countdown above), it just stops adding to the queue.
