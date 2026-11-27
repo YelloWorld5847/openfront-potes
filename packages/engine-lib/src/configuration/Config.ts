@@ -449,8 +449,10 @@ export class Config {
     return 150;
   }
 
+  // mass orders games let structures sit close together, so a whole territory
+  // can be filled
   structureMinDist(): number {
-    return 15;
+    return this._gameConfig.publicGameModifiers?.isMassOrders ? 4 : 15;
   }
 
   /** Max-health boost per veterancy level, as an integer percent of base max

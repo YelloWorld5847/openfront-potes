@@ -2914,7 +2914,12 @@
     "city": "Ville",
     "upgrade_silos": "Améliorer les silos",
     "upgrade_cities": "Améliorer les villes",
-    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte",
-    "silo": "Silo de missiles"
+    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. Remplir répartit la quantité choisie sur tes terres",
+    "silo": "Silo de missiles",
+    "port": "Port",
+    "sam": "SAM",
+    "defense_post": "Poste de défense",
+    "factory": "Usine",
+    "fill": "Remplir mon territoire"
   }
 }

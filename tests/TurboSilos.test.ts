@@ -48,3 +48,16 @@ describe("turbo silos", () => {
     expect(slow.missileTimerQueue().length).toBeGreaterThan(0);
   });
 });
+
+describe("mass orders", () => {
+  test("structures may sit closer together", async () => {
+    const [plain] = await silo(false, 1);
+    const mass = await setup(
+      "big_plains",
+      { publicGameModifiers: { isMassOrders: true } },
+      [playerInfo("human", PlayerType.Human)],
+    );
+    expect(plain.config().structureMinDist()).toBe(15);
+    expect(mass.config().structureMinDist()).toBe(4);
+  });
+});

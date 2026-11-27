@@ -5,12 +5,28 @@ import {
 } from "@openfront/engine-api/game/GameTypes";
 import { EventBus } from "@openfront/shared/EventBus";
 import { Controller } from "../Controller";
-import { SendUpgradeStructureIntentEvent } from "../Transport";
+import {
+  BuildUnitIntentEvent,
+  SendUpgradeStructureIntentEvent,
+} from "../Transport";
 import { UIState } from "../UIState";
 import { translateText } from "../Utils";
 import { GameView } from "../view";
 
 const AMOUNTS = [1, 5, 10, 25, MAX_UPGRADE_AMOUNT];
+
+// what "fill my territory" can place
+const FILLABLE: UnitType[] = [
+  UnitType.City,
+  UnitType.Port,
+  UnitType.MissileSilo,
+  UnitType.SAMLauncher,
+  UnitType.DefensePost,
+  UnitType.Factory,
+];
+// tiles kept between two things placed by one fill, a bit over the game's
+// minimum so nothing is refused for being too close
+const FILL_SPACING = 6;
 
 const BUTTON = "rounded bg-white/10 px-2 py-1 hover:bg-white/20";
 // a separate string, two background classes on one element fight each other
@@ -47,6 +63,7 @@ export class MassOrdersController implements Controller {
       this.amountRow(),
       this.label(translateText("mass_orders.place")),
       this.placeRow(),
+      this.fillButton(),
       this.repeatRow(),
       this.upgradeRow(),
       this.hint(translateText("mass_orders.hint")),
@@ -97,6 +114,10 @@ export class MassOrdersController implements Controller {
     const choices: [PlayerBuildableUnitType, string][] = [
       [UnitType.MissileSilo, translateText("mass_orders.silo")],
       [UnitType.City, translateText("mass_orders.city")],
+      [UnitType.Port, translateText("mass_orders.port")],
+      [UnitType.SAMLauncher, translateText("mass_orders.sam")],
+      [UnitType.DefensePost, translateText("mass_orders.defense_post")],
+      [UnitType.Factory, translateText("mass_orders.factory")],
       [UnitType.AtomBomb, translateText("mass_orders.atom_bomb")],
       [UnitType.HydrogenBomb, translateText("mass_orders.hydrogen_bomb")],
     ];
@@ -114,6 +135,53 @@ export class MassOrdersController implements Controller {
       row.appendChild(button);
     }
     return row;
+  }
+
+  private fillButton(): HTMLElement {
+    const button = document.createElement("button");
+    button.textContent = translateText("mass_orders.fill");
+    button.className = BUTTON;
+    button.addEventListener("click", () => this.fill());
+    return button;
+  }
+
+  // Places as many of the chosen structure as the amount says, spread over
+  // the territory. Each one is an ordinary build order: the game refuses the
+  // ones that do not fit or that cost too much, nothing else is bypassed.
+  private fill() {
+    const me = this.game.myPlayer();
+    if (me === null) return;
+    const chosen = this.uiState.ghostStructure;
+    const type = FILLABLE.find((t) => t === chosen) ?? UnitType.City;
+    const wanted = this.uiState.upgradeMultiplier || 1;
+
+    const tiles: number[] = [];
+    for (let y = 0; y < this.game.height(); y += 3) {
+      for (let x = 0; x < this.game.width(); x += 3) {
+        const tile = this.game.ref(x, y);
+        if (this.game.ownerID(tile) !== me.smallID()) continue;
+        if (!this.game.isLand(tile)) continue;
+        if (type === UnitType.Port && !this.game.isOceanShore(tile)) continue;
+        tiles.push(tile);
+      }
+    }
+    for (let i = tiles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+
+    const placed: number[] = [];
+    for (const tile of tiles) {
+      if (placed.length >= wanted) break;
+      const far = placed.every((p) => {
+        const dx = this.game.x(p) - this.game.x(tile);
+        const dy = this.game.y(p) - this.game.y(tile);
+        return dx * dx + dy * dy >= FILL_SPACING * FILL_SPACING;
+      });
+      if (!far) continue;
+      placed.push(tile);
+      this.eventBus.emit(new BuildUnitIntentEvent(type, tile));
+    }
   }
 
   private repeatRow(): HTMLElement {
