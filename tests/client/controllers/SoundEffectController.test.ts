@@ -69,6 +69,37 @@ describe("SoundEffectController", () => {
     expect(played).toEqual(["atom-hit", "atom-hit"]);
   });
 
+  it("plays one launch cue and one hit cue for a salvo of fifty bombs", () => {
+    const launched = (id: number) => ({
+      id: () => id,
+      type: () => UnitType.AtomBomb,
+      isActive: () => true,
+      reachedTarget: () => false,
+      createdAt: () => tick,
+      owner: () => ({}),
+    });
+    tickWithUnits(...Array.from({ length: 50 }, (_, i) => launched(i)));
+    expect(played).toEqual(["atom-launch"]);
+
+    const landed = (id: number) => ({
+      id: () => id,
+      type: () => UnitType.AtomBomb,
+      isActive: () => false,
+      reachedTarget: () => true,
+      createdAt: () => 0,
+      owner: () => ({}),
+    });
+    tick += 10;
+    played.length = 0;
+    tickWithUnits(...Array.from({ length: 50 }, (_, i) => landed(i)));
+    expect(played).toEqual(["atom-hit"]);
+
+    // a later salvo, outside the interval, is heard again
+    tick += 10;
+    tickWithUnits(landed(99));
+    expect(played).toEqual(["atom-hit", "atom-hit"]);
+  });
+
   it("does not play a boom for intercepted warheads", () => {
     const intercepted = {
       id: () => 1,

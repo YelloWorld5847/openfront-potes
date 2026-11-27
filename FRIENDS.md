@@ -63,6 +63,14 @@ Deux options pour les parties perso avec beaucoup d'or (salon privé, Advanced s
 - **Silos turbo** : la recharge d'un silo diminue avec son niveau (9 s au niveau 1, 1,5 s au niveau 11, jamais moins de 1 s). Un niveau de silo est aussi le nombre de missiles qui peuvent partir en parallèle : améliorer un silo coûte de l'or et fait les deux. Formule dans `SiloCooldown` (`packages/engine-lib/src/configuration/Config.ts`).
 - **Envois en masse** : un panneau à gauche de l'écran (`src/client/controllers/MassOrdersController.ts`) avec la quantité par ordre (x1 à x50), ce qu'on place (silo, ville, port, SAM, poste de défense, usine, bombe atomique, bombe H), un bouton "Remplir mon territoire" qui répartit la quantité choisie sur tes terres, "maintenir pour répéter" et "améliorer tous les silos / toutes les villes". Une bombe cliquée avec x25 en lance 25 d'un coup. En maintenant le clic, le placement se répète à chaque case survolée ; sur une case qui a déjà un bâtiment, ça l'améliore. La limite de débit des ordres est multipliée par 20 dans ces parties (`ClientMsgRateLimiter.ts`), et la distance minimale entre deux structures passe de 15 à 4 cases (`structureMinDist`).
 
+### Monter le débit d'un silo
+
+1. Place un silo. 2. Améliore-le : sélectionne "Silo de missiles" dans le panneau, choisis x50, puis clique sur ton silo (ou maintiens le clic dessus). Le bouton "Améliorer les silos" fait pareil pour tous tes silos. 3. Attends 1 à 2 s : les nouveaux niveaux commencent en recharge. 4. Choisis une quantité, "Bombe atomique", clique la cible.
+
+Chaque niveau ajoute un missile en parallèle. Avec les silos turbo, il réduit aussi la recharge : niveau 1 = 9 s, 3 = 4,5 s, 5 = 3 s, 11 = 1,5 s, 19 et plus = 1 s.
+
+Pour éviter les ralentissements, le son d'une salve est limité à un son toutes les 3 ticks, et une bombe tenue au clic ne repart pas plus d'une fois toutes les 0,6 s ni au-delà de 150 bombes en vol (`BuildPreviewController.ts`, `SoundEffectController.ts`).
+
 ## En local sous Windows
 
 Docker peut réserver des ports, dont 8787, que le faux compte de `npm run dev` utilise. Si l'API locale ne démarre pas, lance avec `DEV_API_PORT=9150` (par exemple `DEV_API_PORT=9150 npm run dev`) et, dans la console du navigateur, `localStorage.setItem("apiHost", "http://localhost:9150")`.

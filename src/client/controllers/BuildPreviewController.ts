@@ -48,6 +48,8 @@ import { UIState } from "../UIState";
 import { UserSettings } from "../UserSettings";
 import { GameView } from "../view";
 
+const MAX_BOMBS_IN_FLIGHT_WHEN_HELD = 150;
+
 /** True for nuke types (AtomBomb, HydrogenBomb): ghost is preserved after placement so user can place multiple or keep selection (Enter/key confirm). */
 export function shouldPreserveGhostAfterBuild(unitType: UnitType): boolean {
   return unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb;
@@ -1285,6 +1287,7 @@ export class BuildPreviewController implements Controller {
   }
 
   private holdTimer: ReturnType<typeof setInterval> | null = null;
+  private lastNukeRepeat = 0;
 
   // Mass orders: keeping the button down places again and again, wherever the
   // cursor goes, so a line of cities or a salvo of bombs is one gesture.
@@ -1297,10 +1300,29 @@ export class BuildPreviewController implements Controller {
     if (!this.ghostUnit) return;
     this.holdTimer = setInterval(() => {
       if (!this.ghostUnit || this.pendingConfirmations.length > 1) return;
+      if (this.holdWouldFloodNukes()) return;
       this.requestConfirmStructure(
         new MouseUpEvent(this.mousePos.x, this.mousePos.y),
       );
     }, 140);
+  }
+
+  // With turbo silos a held button could send a salvo of fifty several times a
+  // second and put thousands of bombs in the air, which no screen can draw. So
+  // bombs repeat at most every 0.6 s, and not while a lot are already flying.
+  private holdWouldFloodNukes(): boolean {
+    const type = this.ghostUnit?.buildableUnit.type;
+    if (type !== UnitType.AtomBomb && type !== UnitType.HydrogenBomb) {
+      return false;
+    }
+    const now = Date.now();
+    if (now - this.lastNukeRepeat < 600) return true;
+    const flying =
+      this.game.myPlayer()?.units(UnitType.AtomBomb, UnitType.HydrogenBomb)
+        .length ?? 0;
+    if (flying >= MAX_BOMBS_IN_FLIGHT_WHEN_HELD) return true;
+    this.lastNukeRepeat = now;
+    return false;
   }
 
   private stopHoldRepeat(): void {

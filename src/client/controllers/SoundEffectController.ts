@@ -14,6 +14,11 @@ import { GameView, UnitView } from "../view";
 // warhead churns the audio pipeline. Play at most one warhead boom per interval.
 const MIRV_HIT_SOUND_INTERVAL_TICKS = 5;
 
+// A salvo of fifty bombs launches and lands on a handful of ticks: one cue per
+// interval is all the ear can use, and fifty at once chokes the audio pipeline
+// (the lag mass orders games showed).
+const NUKE_SOUND_INTERVAL_TICKS = 3;
+
 // Several nukes can be announced inbound on the same tick (multiple silos,
 // multiple attackers); don't stack the alarm and evict other cues.
 const NUKE_WARNING_SOUND_INTERVAL_TICKS = 10;
@@ -45,6 +50,7 @@ const NUKE_INBOUND_MESSAGES = new Set<MessageType>([
 export class SoundEffectController implements Controller {
   private lastMirvHitSoundTick = -Infinity;
   private lastNukeWarningSoundTick = -Infinity;
+  private lastNukeSoundTick = new Map<SoundEffect, number>();
   private lastTrainStationSoundTick = -Infinity;
   // A train station is a flag on an existing structure, not a unit — play the
   // build sound on the false→true edge only, so structures that already have
@@ -149,10 +155,10 @@ export class SoundEffectController implements Controller {
     const myPlayer = this.game.myPlayer();
     switch (unit.type()) {
       case UnitType.AtomBomb:
-        this.emit("atom-launch");
+        this.emitSpaced("atom-launch");
         break;
       case UnitType.HydrogenBomb:
-        this.emit("hydrogen-launch");
+        this.emitSpaced("hydrogen-launch");
         break;
       case UnitType.MIRV:
         this.emit("mirv-launch");
@@ -239,6 +245,14 @@ export class SoundEffectController implements Controller {
   private onNukeDetonation(unit: UnitView, sound: SoundEffect): void {
     if (unit.isActive()) return;
     if (!unit.reachedTarget()) return;
+    this.emitSpaced(sound);
+  }
+
+  private emitSpaced(sound: SoundEffect): void {
+    const tick = this.game.ticks();
+    const last = this.lastNukeSoundTick.get(sound) ?? -Infinity;
+    if (tick - last < NUKE_SOUND_INTERVAL_TICKS) return;
+    this.lastNukeSoundTick.set(sound, tick);
     this.emit(sound);
   }
 
