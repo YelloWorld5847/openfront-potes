@@ -31,3 +31,25 @@ export function spiralOffsets(
   }
   return out;
 }
+
+// The closest point to (x, y) within `radius`, or null. Screen pixels in, one
+// of the given points out.
+export function nearestWithin<T extends { x: number; y: number }>(
+  points: readonly T[],
+  x: number,
+  y: number,
+  radius: number,
+): T | null {
+  let best: T | null = null;
+  let bestSquared = radius * radius;
+  for (const p of points) {
+    const dx = p.x - x;
+    const dy = p.y - y;
+    const d = dx * dx + dy * dy;
+    if (d <= bestSquared) {
+      best = p;
+      bestSquared = d;
+    }
+  }
+  return best;
+}

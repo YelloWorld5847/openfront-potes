@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { splitAmount, spiralOffsets } from "../../src/client/MassOrdersMath";
+import {
+  nearestWithin,
+  spiralOffsets,
+  splitAmount,
+} from "../../src/client/MassOrdersMath";
 
 describe("splitAmount", () => {
   it("keeps small amounts whole", () => {
@@ -32,5 +36,23 @@ describe("spiralOffsets", () => {
 
   it("gives at least the number asked for", () => {
     expect(spiralOffsets(500, 5).length).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe("nearestWithin", () => {
+  const points = [
+    { id: 1, x: 100, y: 100 },
+    { id: 2, x: 110, y: 100 },
+    { id: 3, x: 300, y: 300 },
+  ];
+
+  it("picks the closest point in reach", () => {
+    expect(nearestWithin(points, 108, 100, 30)?.id).toBe(2);
+    expect(nearestWithin(points, 101, 100, 30)?.id).toBe(1);
+  });
+
+  it("gives nothing when everything is too far", () => {
+    expect(nearestWithin(points, 200, 200, 30)).toBeNull();
+    expect(nearestWithin([], 0, 0, 30)).toBeNull();
   });
 });

@@ -8,6 +8,7 @@ import { HoverHighlightController } from "../controllers/HoverHighlightControlle
 import { LiveStatsController } from "../controllers/LiveStatsController";
 import { MapLayerController } from "../controllers/MapLayerController";
 import { MassOrdersController } from "../controllers/MassOrdersController";
+import { MassUpgradeController } from "../controllers/MassUpgradeController";
 import { SoundEffectController } from "../controllers/SoundEffectController";
 import { StructureHighlightController } from "../controllers/StructureHighlightController";
 import { ViewModeController } from "../controllers/ViewModeController";
@@ -356,6 +357,7 @@ export function createRenderer(
     new LiveStatsController(game, eventBus),
     new FogController(game, transformHandler),
     new MassOrdersController(game, eventBus, uiState),
+    new MassUpgradeController(game, eventBus, uiState, transformHandler),
     new VolcanoMarkerController(game, transformHandler),
     new StructureHighlightController(eventBus, view),
     new ViewModeController(eventBus, view),

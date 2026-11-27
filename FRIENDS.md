@@ -63,10 +63,10 @@ Deux options pour les parties perso avec beaucoup d'or (salon privé, Advanced s
 - **Silos turbo** : un silo tire sans limite, tout en même temps. Plus de niveaux à acheter, plus de file de rechargement, plus de délai d'un tick entre deux bombes d'une même salve (`firesFreely` dans `packages/engine/src/game/UnitImpl.ts`). Seul l'or limite le nombre de bombes.
 - **Envois en masse** : un panneau à gauche de l'écran (`src/client/controllers/MassOrdersController.ts`). Sur téléphone il démarre replié, on touche "Envois en masse" pour l'ouvrir.
   - **Quantité par ordre** : x1, x20, x50, x100 ou x500. Elle s'applique à chaque clic et à chaque répétition du maintien. Au-delà de 50 l'ordre part en plusieurs paquets de 50 (`src/client/MassOrdersMath.ts`).
-  - **Ce que fait un clic** : _Poser_ ne fait que construire (maintenir un silo ou une ville en pose d'autres, jamais d'amélioration) ; _Améliorer_ ne fait que monter de niveau la structure sous le curseur de la quantité choisie.
+  - **Ce que fait un clic** : _Poser_ ne fait que construire (maintenir un silo ou une ville en pose d'autres, jamais d'amélioration). _Améliorer_ : on maintient sur une structure de la carte, de n'importe quel type, et elle monte de niveau (de la quantité choisie à chaque fois) tant qu'on tient, ça s'arrête au relâchement. Pas de choix de structure ni de logo sur le curseur dans ce mode (`src/client/controllers/MassUpgradeController.ts`).
   - **Ce qu'on place** : silo, ville, port, SAM, poste de défense, usine, bombe atomique, bombe H. Une bombe lance la quantité choisie d'un coup ; une structure avec une quantité de 20 en pose 20 réparties autour du curseur, sur tes terres.
   - **Remplir mon territoire** : répartit la quantité choisie sur tout ton territoire.
-  - **Maintenir pour répéter** : en gardant le clic, l'ordre se répète. Les bombes repartent au plus toutes les 0,6 s et pas au-delà de 600 en vol.
+  - **Maintenir pour répéter** (mode Poser) : en gardant le clic, l'ordre se répète à chaque tour de jeu (toutes les 0,1 s), sans pause. Seule limite de sécurité : 4000 bombes en vol.
 - La limite de débit des ordres est multipliée par 20 dans ces parties (`ClientMsgRateLimiter.ts`) et la distance minimale entre deux structures passe de 15 à 4 cases (`structureMinDist`).
 - Le son d'une salve est limité à un son toutes les 3 ticks (`SoundEffectController.ts`).
 

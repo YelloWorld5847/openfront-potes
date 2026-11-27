@@ -41,6 +41,9 @@ export class MassOrdersController implements Controller {
   private modeButtons = new Map<string, HTMLButtonElement>();
   private placeButtons = new Map<PlayerBuildableUnitType, HTMLButtonElement>();
   private repeatBox = document.createElement("input");
+  // everything about choosing what to place, hidden in upgrade mode
+  private placeBox = document.createElement("div");
+  private hintEl = document.createElement("div");
   private open = true;
 
   constructor(
@@ -72,12 +75,17 @@ export class MassOrdersController implements Controller {
       this.amountRow(),
       this.label(translateText("mass_orders.mode")),
       this.modeRow(),
+      this.placeBox,
+      this.hintEl,
+    );
+    this.placeBox.className = "flex flex-col gap-2";
+    this.placeBox.append(
       this.label(translateText("mass_orders.place")),
       this.placeRow(),
       this.fillButton(),
       this.repeatRow(),
-      this.hint(translateText("mass_orders.hint")),
     );
+    this.hintEl.className = "text-[10px] text-white/50";
     this.root.append(this.toggle, this.body);
     document.body.appendChild(this.root);
     this.refresh();
@@ -111,6 +119,11 @@ export class MassOrdersController implements Controller {
       button.className = style(this.uiState.ghostStructure === type);
     }
     this.repeatBox.checked = this.uiState.holdRepeat === true;
+    const upgrading = this.uiState.massMode === "upgrade";
+    this.placeBox.style.display = upgrading ? "none" : "flex";
+    this.hintEl.textContent = upgrading
+      ? translateText("mass_orders.hint_upgrade")
+      : translateText("mass_orders.hint");
   }
 
   private amountRow(): HTMLElement {
@@ -141,6 +154,8 @@ export class MassOrdersController implements Controller {
       button.textContent = name;
       button.addEventListener("click", () => {
         this.uiState.massMode = mode === "upgrade" ? "upgrade" : "place";
+        // upgrade mode has nothing to place, so no logo follows the cursor
+        if (mode === "upgrade") this.uiState.ghostStructure = null;
         this.refresh();
       });
       this.modeButtons.set(mode, button);
@@ -238,13 +253,6 @@ export class MassOrdersController implements Controller {
   private label(text: string): HTMLElement {
     const el = document.createElement("div");
     el.className = "text-white/60";
-    el.textContent = text;
-    return el;
-  }
-
-  private hint(text: string): HTMLElement {
-    const el = document.createElement("div");
-    el.className = "text-[10px] text-white/50";
     el.textContent = text;
     return el;
   }

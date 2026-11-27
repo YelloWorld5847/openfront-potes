@@ -2912,7 +2912,7 @@
     "atom_bomb": "Bombe atomique",
     "hydrogen_bomb": "Bombe H",
     "city": "Ville",
-    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. La quantité s'applique à chaque ordre. Poser n'améliore jamais, Améliorer ne construit jamais",
+    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. La quantité s'applique à chaque ordre",
     "silo": "Silo de missiles",
     "port": "Port",
     "sam": "SAM",
@@ -2921,6 +2921,7 @@
     "fill": "Remplir mon territoire",
     "mode": "Ce que fait un clic",
     "mode_place": "Poser",
-    "mode_upgrade": "Améliorer"
+    "mode_upgrade": "Améliorer",
+    "hint_upgrade": "Maintiens sur une de tes structures sur la carte : elle monte de niveau tant que tu tiens"
   }
 }
