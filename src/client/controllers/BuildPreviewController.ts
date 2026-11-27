@@ -33,7 +33,7 @@ import {
   TouchGhostPlacementSelectEvent,
   ToggleStructureEvent,
 } from "../InputHandler";
-import { splitAmount, spiralOffsets } from "../MassOrdersMath";
+import { bombsFor, splitAmount, spiralOffsets } from "../MassOrdersMath";
 import type { MapRenderer } from "../render/gl";
 import {
   buildNukeTrajectory,
@@ -1265,7 +1265,7 @@ export class BuildPreviewController implements Controller {
     if (type === UnitType.AtomBomb || type === UnitType.HydrogenBomb) {
       if (unit.canBuild === false) return;
       if (this.shouldBlockRecentAllyNuke(targetTile, type)) return;
-      for (const part of splitAmount(total)) {
+      for (const part of splitAmount(bombsFor(total))) {
         this.eventBus.emit(
           new BuildUnitIntentEvent(
             type,

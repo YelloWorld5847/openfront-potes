@@ -2912,7 +2912,7 @@
     "atom_bomb": "Bombe atomique",
     "hydrogen_bomb": "Bombe H",
     "city": "Ville",
-    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. La quantité s'applique à chaque ordre",
+    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. La quantité s'applique à chaque ordre. Pour les bombes elle compte pour un dixième (x20 = 2 bombes, x500 = 50)",
     "silo": "Silo de missiles",
     "port": "Port",
     "sam": "SAM",

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  bombsFor,
   nearestWithin,
   spiralOffsets,
   splitAmount,
@@ -54,5 +55,19 @@ describe("nearestWithin", () => {
   it("gives nothing when everything is too far", () => {
     expect(nearestWithin(points, 200, 200, 30)).toBeNull();
     expect(nearestWithin([], 0, 0, 30)).toBeNull();
+  });
+});
+
+describe("bombsFor", () => {
+  it("counts a tenth of the amount, at least one", () => {
+    expect(bombsFor(1)).toBe(1);
+    expect(bombsFor(20)).toBe(2);
+    expect(bombsFor(50)).toBe(5);
+    expect(bombsFor(100)).toBe(10);
+    expect(bombsFor(500)).toBe(50);
+  });
+
+  it("never goes past what one order can carry", () => {
+    expect(splitAmount(bombsFor(500))).toEqual([50]);
   });
 });

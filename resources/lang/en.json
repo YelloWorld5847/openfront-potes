@@ -2302,7 +2302,7 @@
     "defense_post": "Defense post",
     "factory": "Factory",
     "fill": "Fill my territory",
-    "hint": "Pick what to place, then click or hold on the map. The amount applies to every order",
+    "hint": "Pick what to place, then click or hold on the map. The amount applies to every order. For bombs it counts a tenth (x20 = 2 bombs, x500 = 50)",
     "hint_upgrade": "Hold on one of your structures on the map: it keeps gaining levels until you let go",
     "hold_repeat": "Hold to repeat",
     "hydrogen_bomb": "Hydrogen bomb",

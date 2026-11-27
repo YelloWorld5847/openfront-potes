@@ -1,4 +1,5 @@
 import { PlayerType, UnitType } from "@openfront/engine-api/game/GameTypes";
+import { ConstructionExecution } from "@openfront/engine/execution/ConstructionExecution";
 import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
 import { Game, Unit } from "@openfront/engine/game/Game";
 import { playerInfo, setup } from "./util/Setup";
@@ -61,11 +62,42 @@ describe("turbo silos", () => {
     expect(silo.isInCooldown()).toBe(true);
   });
 
-  test("a salvo leaves all at once, from a single silo", async () => {
+  test("an order for twenty bombs sends all of them from a single silo", async () => {
     const [game] = await world(true);
-    salvo(game, 50);
+    const me = game.player("human");
+    game.addExecution(
+      new ConstructionExecution(
+        me,
+        UnitType.AtomBomb,
+        game.ref(160, 160),
+        true,
+        20,
+      ),
+    );
     for (let i = 0; i < 3; i++) game.executeNextTick();
-    expect(game.units(UnitType.AtomBomb)).toHaveLength(50);
+    expect(game.units(UnitType.AtomBomb)).toHaveLength(20);
+  });
+
+  test("a salvo leaves as a stream, a pair per tick, never all together", async () => {
+    const [game] = await world(true);
+    const me = game.player("human");
+    game.addExecution(
+      new ConstructionExecution(
+        me,
+        UnitType.AtomBomb,
+        game.ref(160, 160),
+        true,
+        20,
+      ),
+    );
+    for (let i = 0; i < 3; i++) game.executeNextTick();
+    const waits = game
+      .units(UnitType.AtomBomb)
+      .map((u) => u.toUpdate().nukeState?.waitTicks ?? 0);
+    // some are still waiting their turn, the last ones the longest
+    expect(waits.some((w) => w > 0)).toBe(true);
+    expect(Math.max(...waits)).toBeGreaterThanOrEqual(5);
+    expect(Math.max(...waits)).toBeLessThanOrEqual(10);
   });
 
   test("without turbo a level 1 silo only sends one", async () => {

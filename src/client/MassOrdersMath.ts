@@ -53,3 +53,10 @@ export function nearestWithin<T extends { x: number; y: number }>(
   }
   return best;
 }
+
+// A bomb is a lot heavier to simulate and to draw than a building, so the
+// amount chosen in the panel counts a tenth for bombs: x20 is 2, x50 is 5,
+// x500 is 50. Never less than one.
+export function bombsFor(amount: number): number {
+  return Math.max(1, Math.round(amount / 10));
+}

@@ -52,6 +52,8 @@ export function structureExecution(structure: Unit): Execution {
   }
 }
 
+const TURBO_BOMBS_PER_TICK = 2;
+
 export class ConstructionExecution implements Execution {
   private structure: Unit | null = null;
   private active: boolean = true;
@@ -148,8 +150,11 @@ export class ConstructionExecution implements Execution {
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb: {
         const count = this.amount ?? 1;
+        // A normal silo staggers same-tick launches through its queue (see
+        // NukeExecution). Turbo silos have no queue, so a salvo is spread here:
+        // a pair per tick, a stream of bombs and not one piled on top of another.
+        const turbo = this.mg.config().isTurboSilos();
         for (let i = 0; i < count; i++) {
-          // NukeExecution staggers same-tick launches per silo itself.
           this.mg.addExecution(
             new NukeExecution(
               this.constructionType,
@@ -157,7 +162,7 @@ export class ConstructionExecution implements Execution {
               this.tile,
               null,
               -1,
-              0,
+              turbo ? Math.floor(i / TURBO_BOMBS_PER_TICK) : 0,
               this.rocketDirectionUp,
             ),
           );
