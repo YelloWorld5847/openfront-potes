@@ -168,11 +168,12 @@ export class Config {
   SAMCooldown(): number {
     return 90;
   }
-  // With turbo silos the wait between missiles shrinks as the silo is
-  // upgraded: level 1 is the usual 9 seconds, level 11 is 1.5, never below 1
-  SiloCooldown(level = 1): number {
-    if (!this._gameConfig.publicGameModifiers?.isTurboSilos) return 90;
-    return Math.max(10, Math.floor(90 / (1 + (level - 1) / 2)));
+  SiloCooldown(): number {
+    return 90;
+  }
+  // turbo silos fire without limit: no slots, no queue, no wait
+  isTurboSilos(): boolean {
+    return this._gameConfig.publicGameModifiers?.isTurboSilos === true;
   }
 
   defensePostRange(): number {

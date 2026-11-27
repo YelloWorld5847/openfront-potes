@@ -1,57 +1,84 @@
 import { PlayerType, UnitType } from "@openfront/engine-api/game/GameTypes";
-import { MissileSiloExecution } from "@openfront/engine/execution/MissileSiloExecution";
+import { NukeExecution } from "@openfront/engine/execution/NukeExecution";
 import { Game, Unit } from "@openfront/engine/game/Game";
 import { playerInfo, setup } from "./util/Setup";
 
-async function silo(turbo: boolean, level: number): Promise<[Game, Unit]> {
+async function world(turbo: boolean): Promise<[Game, Unit]> {
   const game = await setup(
     "big_plains",
-    turbo ? { publicGameModifiers: { isTurboSilos: true } } : {},
-    [playerInfo("human", PlayerType.Human)],
+    {
+      infiniteGold: true,
+      ...(turbo ? { publicGameModifiers: { isTurboSilos: true } } : {}),
+    },
+    [
+      playerInfo("human", PlayerType.Human),
+      playerInfo("enemy", PlayerType.Human),
+    ],
   );
-  const player = game.player("human");
-  player.conquer(game.ref(5, 5));
-  const unit = player.buildUnit(UnitType.MissileSilo, game.ref(5, 5), {});
-  unit.setUnderConstruction(false);
-  for (let i = 1; i < level; i++) unit.increaseLevel();
-  game.addExecution(new MissileSiloExecution(unit));
-  return [game, unit];
+  const me = game.player("human");
+  const foe = game.player("enemy");
+  for (let x = 20; x < 60; x++) {
+    for (let y = 20; y < 60; y++) me.conquer(game.ref(x, y));
+  }
+  for (let x = 130; x < 190; x++) {
+    for (let y = 130; y < 190; y++) foe.conquer(game.ref(x, y));
+  }
+  const silo = me.buildUnit(UnitType.MissileSilo, game.ref(40, 40), {});
+  silo.setUnderConstruction(false);
+  return [game, silo];
+}
+
+function salvo(game: Game, count: number) {
+  const me = game.player("human");
+  for (let i = 0; i < count; i++) {
+    game.addExecution(
+      new NukeExecution(
+        UnitType.AtomBomb,
+        me,
+        game.ref(160, 160),
+        null,
+        -1,
+        0,
+        true,
+      ),
+    );
+  }
 }
 
 describe("turbo silos", () => {
-  test("the wait shrinks with the level, never below one second", async () => {
-    const [game] = await silo(true, 1);
-    const cooldown = (level: number) => game.config().SiloCooldown(level);
-    expect(cooldown(1)).toBe(90);
-    expect(cooldown(3)).toBeLessThan(cooldown(1));
-    expect(cooldown(11)).toBeLessThan(cooldown(3));
-    expect(cooldown(500)).toBe(10);
+  test("a silo never queues or waits, however much it fires", async () => {
+    const [, silo] = await world(true);
+    for (let i = 0; i < 200; i++) silo.launch();
+    silo.increaseLevel();
+    expect(silo.missileTimerQueue()).toHaveLength(0);
+    expect(silo.isInCooldown()).toBe(false);
   });
 
-  test("without the modifier the wait is always the usual 9 seconds", async () => {
-    const [game] = await silo(false, 1);
-    expect(game.config().SiloCooldown(1)).toBe(90);
-    expect(game.config().SiloCooldown(40)).toBe(90);
+  test("a normal silo still has a slot per level", async () => {
+    const [, silo] = await world(false);
+    silo.launch();
+    expect(silo.missileTimerQueue()).toHaveLength(1);
+    expect(silo.isInCooldown()).toBe(true);
   });
 
-  test("an upgraded turbo silo reloads in a fraction of the time", async () => {
-    const [turbo, fast] = await silo(true, 21);
-    const [plain, slow] = await silo(false, 21);
-    fast.launch();
-    slow.launch();
-    // every new level starts out reloading, one slot comes back per tick
-    for (let i = 0; i < 60; i++) {
-      turbo.executeNextTick();
-      plain.executeNextTick();
-    }
-    expect(fast.missileTimerQueue()).toHaveLength(0);
-    expect(slow.missileTimerQueue().length).toBeGreaterThan(0);
+  test("a salvo leaves all at once, from a single silo", async () => {
+    const [game] = await world(true);
+    salvo(game, 50);
+    for (let i = 0; i < 3; i++) game.executeNextTick();
+    expect(game.units(UnitType.AtomBomb)).toHaveLength(50);
+  });
+
+  test("without turbo a level 1 silo only sends one", async () => {
+    const [game] = await world(false);
+    salvo(game, 50);
+    for (let i = 0; i < 3; i++) game.executeNextTick();
+    expect(game.units(UnitType.AtomBomb).length).toBeLessThan(5);
   });
 });
 
 describe("mass orders", () => {
   test("structures may sit closer together", async () => {
-    const [plain] = await silo(false, 1);
+    const [plain] = await world(false);
     const mass = await setup(
       "big_plains",
       { publicGameModifiers: { isMassOrders: true } },

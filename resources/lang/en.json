@@ -2302,17 +2302,18 @@
     "defense_post": "Defense post",
     "factory": "Factory",
     "fill": "Fill my territory",
-    "hint": "Pick what to place, then click or hold on the map. Fill spreads the chosen amount over your land",
+    "hint": "Pick what to place, then click or hold on the map. The amount applies to every order. Place never upgrades, Upgrade never builds",
     "hold_repeat": "Hold to repeat",
     "hydrogen_bomb": "Hydrogen bomb",
+    "mode": "What a click does",
+    "mode_place": "Place",
+    "mode_upgrade": "Upgrade",
     "place": "Place",
     "port": "Port",
     "quantity": "Amount per order",
     "sam": "SAM",
     "silo": "Missile silo",
-    "title": "Mass orders",
-    "upgrade_cities": "Upgrade cities",
-    "upgrade_silos": "Upgrade silos"
+    "title": "Mass orders"
   },
   "matchmaking_modal": {
     "clan_queue_size": "From [{clan}] in queue: {count}",

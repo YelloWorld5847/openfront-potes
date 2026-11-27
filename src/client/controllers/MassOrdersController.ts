@@ -1,19 +1,15 @@
 import {
-  MAX_UPGRADE_AMOUNT,
   PlayerBuildableUnitType,
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { EventBus } from "@openfront/shared/EventBus";
 import { Controller } from "../Controller";
-import {
-  BuildUnitIntentEvent,
-  SendUpgradeStructureIntentEvent,
-} from "../Transport";
+import { BuildUnitIntentEvent } from "../Transport";
 import { UIState } from "../UIState";
 import { translateText } from "../Utils";
 import { GameView } from "../view";
 
-const AMOUNTS = [1, 5, 10, 25, MAX_UPGRADE_AMOUNT];
+const AMOUNTS = [1, 20, 50, 100, 500];
 
 // what "fill my territory" can place
 const FILLABLE: UnitType[] = [
@@ -34,13 +30,18 @@ const ACTIVE = "rounded bg-orange-600 px-2 py-1 hover:bg-orange-500";
 
 // A small panel for games with mass orders on: pick an amount, pick what to
 // place, then click (or hold) on the map. Everything it does goes through the
-// same build and upgrade intents as the normal controls, so costs, silo slots
-// and gold checks stay exactly as they are.
+// same build and upgrade intents as the normal controls, so costs and gold
+// checks stay exactly as they are. On a narrow screen it starts folded to a
+// single button so it does not cover the map.
 export class MassOrdersController implements Controller {
-  private panel = document.createElement("div");
+  private root = document.createElement("div");
+  private body = document.createElement("div");
+  private toggle = document.createElement("button");
   private amountButtons = new Map<number, HTMLButtonElement>();
+  private modeButtons = new Map<string, HTMLButtonElement>();
   private placeButtons = new Map<PlayerBuildableUnitType, HTMLButtonElement>();
   private repeatBox = document.createElement("input");
+  private open = true;
 
   constructor(
     private game: GameView,
@@ -55,22 +56,32 @@ export class MassOrdersController implements Controller {
   init() {
     if (!this.uiState.massOrders) return;
 
-    this.panel.className =
-      "fixed left-2 top-1/3 z-20 flex w-56 flex-col gap-2 rounded-md border border-white/15 bg-black/75 p-2 text-xs text-white select-none";
-    this.panel.append(
-      this.title(translateText("mass_orders.title")),
+    this.open = !this.compact();
+    this.root.className =
+      "fixed left-2 top-24 z-20 flex w-56 max-w-[calc(100vw-1rem)] flex-col rounded-md border border-white/15 bg-black/80 text-xs text-white select-none";
+    this.toggle.className =
+      "flex w-full items-center justify-between px-2 py-2 text-sm font-bold tracking-wide";
+    this.toggle.addEventListener("click", () => {
+      this.open = !this.open;
+      this.refresh();
+    });
+    this.body.className =
+      "flex max-h-[65vh] flex-col gap-2 overflow-y-auto px-2 pb-2";
+    this.body.append(
       this.label(translateText("mass_orders.quantity")),
       this.amountRow(),
+      this.label(translateText("mass_orders.mode")),
+      this.modeRow(),
       this.label(translateText("mass_orders.place")),
       this.placeRow(),
       this.fillButton(),
       this.repeatRow(),
-      this.upgradeRow(),
       this.hint(translateText("mass_orders.hint")),
     );
-    document.body.appendChild(this.panel);
+    this.root.append(this.toggle, this.body);
+    document.body.appendChild(this.root);
     this.refresh();
-    return () => this.panel.remove();
+    return () => this.root.remove();
   }
 
   tick() {
@@ -78,31 +89,61 @@ export class MassOrdersController implements Controller {
     this.refresh();
   }
 
+  private compact(): boolean {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
   private refresh() {
     const me = this.game.myPlayer();
-    this.panel.style.display = me !== null && me.isAlive() ? "flex" : "none";
+    this.root.style.display = me !== null && me.isAlive() ? "flex" : "none";
+    this.toggle.textContent = `${translateText("mass_orders.title")}  ${this.open ? "-" : "+"}`;
+    this.body.style.display = this.open ? "flex" : "none";
+    const pad = this.compact() ? "py-2" : "py-1";
+    const style = (active: boolean) =>
+      (active ? ACTIVE : BUTTON).replace("py-1", pad);
     for (const [amount, button] of this.amountButtons) {
-      button.className =
-        this.uiState.upgradeMultiplier === amount ? ACTIVE : BUTTON;
+      button.className = style(this.uiState.upgradeMultiplier === amount);
+    }
+    for (const [mode, button] of this.modeButtons) {
+      button.className = `${style((this.uiState.massMode ?? "place") === mode)} flex-1`;
     }
     for (const [type, button] of this.placeButtons) {
-      button.className = this.uiState.ghostStructure === type ? ACTIVE : BUTTON;
+      button.className = style(this.uiState.ghostStructure === type);
     }
     this.repeatBox.checked = this.uiState.holdRepeat === true;
   }
 
   private amountRow(): HTMLElement {
     const row = document.createElement("div");
-    row.className = "flex gap-1";
+    row.className = "flex flex-wrap gap-1";
     for (const amount of AMOUNTS) {
       const button = document.createElement("button");
       button.textContent = `x${amount}`;
-      button.className = BUTTON;
       button.addEventListener("click", () => {
         this.uiState.upgradeMultiplier = amount;
         this.refresh();
       });
       this.amountButtons.set(amount, button);
+      row.appendChild(button);
+    }
+    return row;
+  }
+
+  private modeRow(): HTMLElement {
+    const row = document.createElement("div");
+    row.className = "flex gap-1";
+    const modes: [string, string][] = [
+      ["place", translateText("mass_orders.mode_place")],
+      ["upgrade", translateText("mass_orders.mode_upgrade")],
+    ];
+    for (const [mode, name] of modes) {
+      const button = document.createElement("button");
+      button.textContent = name;
+      button.addEventListener("click", () => {
+        this.uiState.massMode = mode === "upgrade" ? "upgrade" : "place";
+        this.refresh();
+      });
+      this.modeButtons.set(mode, button);
       row.appendChild(button);
     }
     return row;
@@ -124,7 +165,6 @@ export class MassOrdersController implements Controller {
     for (const [type, name] of choices) {
       const button = document.createElement("button");
       button.textContent = name;
-      button.className = BUTTON;
       button.addEventListener("click", () => {
         // clicking the chosen one again puts it back
         this.uiState.ghostStructure =
@@ -193,41 +233,6 @@ export class MassOrdersController implements Controller {
     });
     row.append(this.repeatBox, translateText("mass_orders.hold_repeat"));
     return row;
-  }
-
-  private upgradeRow(): HTMLElement {
-    const row = document.createElement("div");
-    row.className = "flex gap-1";
-    const choices: [UnitType, string][] = [
-      [UnitType.MissileSilo, translateText("mass_orders.upgrade_silos")],
-      [UnitType.City, translateText("mass_orders.upgrade_cities")],
-    ];
-    for (const [type, name] of choices) {
-      const button = document.createElement("button");
-      button.textContent = name;
-      button.className = `${BUTTON} flex-1`;
-      button.addEventListener("click", () => this.upgradeAll(type));
-      row.appendChild(button);
-    }
-    return row;
-  }
-
-  private upgradeAll(type: UnitType) {
-    const me = this.game.myPlayer();
-    if (me === null) return;
-    const amount = this.uiState.upgradeMultiplier || 1;
-    for (const unit of me.units(type)) {
-      this.eventBus.emit(
-        new SendUpgradeStructureIntentEvent(unit.id(), type, amount),
-      );
-    }
-  }
-
-  private title(text: string): HTMLElement {
-    const el = document.createElement("div");
-    el.className = "text-sm font-bold tracking-wide";
-    el.textContent = text;
-    return el;
   }
 
   private label(text: string): HTMLElement {

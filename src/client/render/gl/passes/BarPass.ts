@@ -337,7 +337,7 @@ export class BarPass {
     const cooldown =
       unit.unitType === UT_SAM_LAUNCHER
         ? this.config.SAMCooldown()
-        : this.config.SiloCooldown(unit.level);
+        : this.config.SiloCooldown();
 
     let readiness = ready / maxMissiles;
     for (const timer of unit.missileTimerQueue) {

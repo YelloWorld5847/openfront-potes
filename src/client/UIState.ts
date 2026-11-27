@@ -10,4 +10,6 @@ export interface UIState {
   // placement and holding the button repeats it
   massOrders?: boolean;
   holdRepeat?: boolean;
+  // place: orders only ever build new things; upgrade: only ever upgrade
+  massMode?: "place" | "upgrade";
 }

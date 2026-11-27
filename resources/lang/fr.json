@@ -2912,14 +2912,15 @@
     "atom_bomb": "Bombe atomique",
     "hydrogen_bomb": "Bombe H",
     "city": "Ville",
-    "upgrade_silos": "Améliorer les silos",
-    "upgrade_cities": "Améliorer les villes",
-    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. Remplir répartit la quantité choisie sur tes terres",
+    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte. La quantité s'applique à chaque ordre. Poser n'améliore jamais, Améliorer ne construit jamais",
     "silo": "Silo de missiles",
     "port": "Port",
     "sam": "SAM",
     "defense_post": "Poste de défense",
     "factory": "Usine",
-    "fill": "Remplir mon territoire"
+    "fill": "Remplir mon territoire",
+    "mode": "Ce que fait un clic",
+    "mode_place": "Poser",
+    "mode_upgrade": "Améliorer"
   }
 }

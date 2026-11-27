@@ -74,6 +74,7 @@ export function createRenderer(
     massOrders:
       game.config().gameConfig().publicGameModifiers?.isMassOrders === true,
     holdRepeat: true,
+    massMode: "place",
   };
 
   //hide when the game renders

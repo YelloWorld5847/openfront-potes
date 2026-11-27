@@ -562,7 +562,19 @@ export class UnitImpl implements Unit {
     return `Unit:${this._type},owner:${this.owner().name()}`;
   }
 
+  // turbo silos have no slots to fill and nothing to wait for, so nothing is
+  // ever queued on them
+  private firesFreely(): boolean {
+    return (
+      this._type === UnitType.MissileSilo && this.mg.config().isTurboSilos()
+    );
+  }
+
   launch(): void {
+    if (this.firesFreely()) {
+      this.mg.addUpdate(this.toUpdate());
+      return;
+    }
     this._missileTimerQueue.push(this.mg.ticks());
     this.mg.addUpdate(this.toUpdate());
   }
@@ -572,6 +584,7 @@ export class UnitImpl implements Unit {
   }
 
   isInCooldown(): boolean {
+    if (this.firesFreely()) return false;
     return this._missileTimerQueue.length === this._level;
   }
 
@@ -757,7 +770,10 @@ export class UnitImpl implements Unit {
     // unitCount()/unitsOwned() are level-weighted and memoised on these versions
     this.mg.bumpUnitsVersion();
     this._owner._myUnitsVersion++;
-    if ([UnitType.MissileSilo, UnitType.SAMLauncher].includes(this.type())) {
+    if (
+      [UnitType.MissileSilo, UnitType.SAMLauncher].includes(this.type()) &&
+      !this.firesFreely()
+    ) {
       this._missileTimerQueue.push(this.mg.ticks());
     }
     this.mg.addUpdate(this.toUpdate());

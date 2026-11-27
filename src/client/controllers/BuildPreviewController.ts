@@ -33,6 +33,7 @@ import {
   TouchGhostPlacementSelectEvent,
   ToggleStructureEvent,
 } from "../InputHandler";
+import { splitAmount, spiralOffsets } from "../MassOrdersMath";
 import type { MapRenderer } from "../render/gl";
 import {
   buildNukeTrajectory,
@@ -48,7 +49,7 @@ import { UIState } from "../UIState";
 import { UserSettings } from "../UserSettings";
 import { GameView } from "../view";
 
-const MAX_BOMBS_IN_FLIGHT_WHEN_HELD = 150;
+const MAX_BOMBS_IN_FLIGHT_WHEN_HELD = 600;
 
 /** True for nuke types (AtomBomb, HydrogenBomb): ghost is preserved after placement so user can place multiple or keep selection (Enter/key confirm). */
 export function shouldPreserveGhostAfterBuild(unitType: UnitType): boolean {
@@ -1188,6 +1189,10 @@ export class BuildPreviewController implements Controller {
   ) {
     const unit = this.effectiveBuildableUnit(preventStacking, validatedUnit);
     if (!unit || (unit.canBuild === false && unit.canUpgrade === false)) return;
+    if (this.uiState.massOrders) {
+      this.massOrder(unit, targetTile, endsPlacement);
+      return;
+    }
     if (unit.canUpgrade !== false) {
       this.eventBus.emit(
         new SendUpgradeStructureIntentEvent(
@@ -1227,6 +1232,96 @@ export class BuildPreviewController implements Controller {
     } else {
       this.removeGhostStructure();
     }
+  }
+
+  private lastBurst = { tile: -1, at: 0 };
+
+  // Orders in a mass-order game. The chosen amount goes with every order:
+  // bombs launch that many (in orders of at most 50), structures are spread
+  // around the cursor, and in upgrade mode the structure under the cursor
+  // gains that many levels. In place mode a click or hold never upgrades what
+  // is already there, so holding a silo drops silos and holding a city drops
+  // cities.
+  private massOrder(
+    unit: BuildableUnit,
+    targetTile: TileRef,
+    endsPlacement: boolean,
+  ) {
+    const type = unit.type;
+    const total = this.uiState.upgradeMultiplier || 1;
+
+    if (this.uiState.massMode === "upgrade") {
+      if (unit.canUpgrade === false) return;
+      for (const part of splitAmount(total)) {
+        this.eventBus.emit(
+          new SendUpgradeStructureIntentEvent(unit.canUpgrade, type, part),
+        );
+      }
+      return;
+    }
+
+    if (type === UnitType.AtomBomb || type === UnitType.HydrogenBomb) {
+      if (unit.canBuild === false) return;
+      if (this.shouldBlockRecentAllyNuke(targetTile, type)) return;
+      for (const part of splitAmount(total)) {
+        this.eventBus.emit(
+          new BuildUnitIntentEvent(
+            type,
+            targetTile,
+            this.uiState.rocketDirectionUp,
+            part,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (Structures.has(type) && total > 1) {
+      // a held button asks again for the same spot over and over
+      const now = Date.now();
+      if (
+        this.lastBurst.tile === targetTile &&
+        now - this.lastBurst.at < 1500
+      ) {
+        return;
+      }
+      this.lastBurst = { tile: targetTile, at: now };
+      for (const tile of this.burstTiles(targetTile, type, total)) {
+        this.eventBus.emit(new BuildUnitIntentEvent(type, tile));
+      }
+      return;
+    }
+
+    if (unit.canBuild !== false) {
+      this.eventBus.emit(new BuildUnitIntentEvent(type, targetTile));
+    }
+    if (endsPlacement) this.removeGhostStructure();
+  }
+
+  // Spots for a burst: my own land around the cursor, five tiles apart, the
+  // game refuses any that turn out too close to something already built.
+  private burstTiles(
+    center: TileRef,
+    type: UnitType,
+    count: number,
+  ): TileRef[] {
+    const me = this.game.myPlayer();
+    if (me === null) return [center];
+    const cx = this.game.x(center);
+    const cy = this.game.y(center);
+    const tiles: TileRef[] = [];
+    for (const [dx, dy] of spiralOffsets(count * 4, 5)) {
+      if (tiles.length >= count) break;
+      const x = cx + dx;
+      const y = cy + dy;
+      if (!this.game.isValidCoord(x, y)) continue;
+      const tile = this.game.ref(x, y);
+      if (this.game.ownerID(tile) !== me.smallID()) continue;
+      if (!this.game.isLand(tile)) continue;
+      if (type === UnitType.Port && !this.game.isOceanShore(tile)) continue;
+      tiles.push(tile);
+    }
+    return tiles;
   }
 
   private shouldBlockRecentAllyNuke(
@@ -1301,8 +1396,15 @@ export class BuildPreviewController implements Controller {
     this.holdTimer = setInterval(() => {
       if (!this.ghostUnit || this.pendingConfirmations.length > 1) return;
       if (this.holdWouldFloodNukes()) return;
+      // on a touch screen the order goes where the preview sits
+      const preview = this.touchPlacementMode
+        ? this.touchPreviewScreenPosition()
+        : null;
       this.requestConfirmStructure(
-        new MouseUpEvent(this.mousePos.x, this.mousePos.y),
+        new MouseUpEvent(
+          preview?.x ?? this.mousePos.x,
+          preview?.y ?? this.mousePos.y,
+        ),
       );
     }, 140);
   }
