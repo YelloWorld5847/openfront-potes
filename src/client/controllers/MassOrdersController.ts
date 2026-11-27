@@ -24,6 +24,11 @@ const FILLABLE: UnitType[] = [
 // minimum so nothing is refused for being too close
 const FILL_SPACING = 6;
 
+// the scoreboard opens at the top left and reaches about a third of the way
+// down, so the panel lives below that line, at the bottom left
+const SCOREBOARD_RESERVE_PX = 280;
+const MIN_SCALE = 0.55;
+
 const BUTTON = "rounded bg-white/10 px-2 py-1 hover:bg-white/20";
 // a separate string, two background classes on one element fight each other
 const ACTIVE = "rounded bg-orange-600 px-2 py-1 hover:bg-orange-500";
@@ -61,15 +66,14 @@ export class MassOrdersController implements Controller {
 
     this.open = !this.compact();
     this.root.className =
-      "fixed left-2 top-24 z-20 flex w-56 max-w-[calc(100vw-1rem)] flex-col rounded-md border border-white/15 bg-black/80 text-xs text-white select-none";
+      "fixed left-2 z-20 flex w-56 max-w-[calc(100vw-1rem)] flex-col rounded-md border border-white/15 bg-black/80 text-xs text-white select-none";
     this.toggle.className =
       "flex w-full items-center justify-between px-2 py-2 text-sm font-bold tracking-wide";
     this.toggle.addEventListener("click", () => {
       this.open = !this.open;
       this.refresh();
     });
-    this.body.className =
-      "flex max-h-[65vh] flex-col gap-2 overflow-y-auto px-2 pb-2";
+    this.body.className = "flex flex-col gap-2 px-2 pb-2";
     this.body.append(
       this.label(translateText("mass_orders.quantity")),
       this.amountRow(),
@@ -88,8 +92,13 @@ export class MassOrdersController implements Controller {
     this.hintEl.className = "text-[10px] text-white/50";
     this.root.append(this.toggle, this.body);
     document.body.appendChild(this.root);
+    const onResize = () => this.fit();
+    window.addEventListener("resize", onResize);
     this.refresh();
-    return () => this.root.remove();
+    return () => {
+      window.removeEventListener("resize", onResize);
+      this.root.remove();
+    };
   }
 
   tick() {
@@ -124,6 +133,22 @@ export class MassOrdersController implements Controller {
     this.hintEl.textContent = upgrading
       ? translateText("mass_orders.hint_upgrade")
       : translateText("mass_orders.hint");
+    this.fit();
+  }
+
+  // Sits at the bottom left, clear of the scoreboard, and shrinks to the room
+  // there is so it never needs a scrollbar of its own. On a phone it also
+  // stays above the control bar.
+  private fit() {
+    const bottom = this.compact() ? 150 : 12;
+    this.root.style.bottom = `${bottom}px`;
+    this.root.style.transformOrigin = "bottom left";
+    this.root.style.transform = "";
+    const room = window.innerHeight - SCOREBOARD_RESERVE_PX - bottom;
+    const natural = this.root.offsetHeight;
+    if (natural <= room || natural === 0) return;
+    const scale = Math.max(MIN_SCALE, room / natural);
+    this.root.style.transform = `scale(${scale})`;
   }
 
   private amountRow(): HTMLElement {
