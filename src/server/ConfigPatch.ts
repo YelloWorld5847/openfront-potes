@@ -18,6 +18,8 @@ const CHAOS_KEYS = [
   "isBlackMarket",
   "isTreasures",
   "isFog",
+  "isTurboSilos",
+  "isMassOrders",
 ] as const;
 
 // Copied whenever the patch carries them.

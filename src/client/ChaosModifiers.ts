@@ -5,6 +5,8 @@ export const CHAOS_TOGGLES = [
   { key: "isBlackMarket", labelKey: "public_game_modifier.black_market_label" },
   { key: "isTreasures", labelKey: "public_game_modifier.treasures_label" },
   { key: "isFog", labelKey: "public_game_modifier.fog_label" },
+  { key: "isTurboSilos", labelKey: "public_game_modifier.turbo_silos_label" },
+  { key: "isMassOrders", labelKey: "public_game_modifier.mass_orders_label" },
 ] as const;
 
 export type ChaosKey = (typeof CHAOS_TOGGLES)[number]["key"];
@@ -16,5 +18,7 @@ export function chaosFlags(keys: readonly string[]): Record<ChaosKey, boolean> {
     isBlackMarket: keys.includes("isBlackMarket"),
     isTreasures: keys.includes("isTreasures"),
     isFog: keys.includes("isFog"),
+    isTurboSilos: keys.includes("isTurboSilos"),
+    isMassOrders: keys.includes("isMassOrders"),
   };
 }

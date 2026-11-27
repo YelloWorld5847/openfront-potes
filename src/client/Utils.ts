@@ -289,6 +289,20 @@ export function getActiveModifiers(
       chaos: true,
     });
   }
+  if (modifiers.isTurboSilos) {
+    result.push({
+      labelKey: "public_game_modifier.turbo_silos_label",
+      badgeKey: "public_game_modifier.turbo_silos",
+      chaos: true,
+    });
+  }
+  if (modifiers.isMassOrders) {
+    result.push({
+      labelKey: "public_game_modifier.mass_orders_label",
+      badgeKey: "public_game_modifier.mass_orders",
+      chaos: true,
+    });
+  }
   return result;
 }
 

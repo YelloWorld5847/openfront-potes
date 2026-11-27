@@ -296,6 +296,8 @@ export const GameConfigSchema = z.compile(
         isBlackMarket: z.boolean().optional(),
         isTreasures: z.boolean().optional(),
         isFog: z.boolean().optional(),
+        isTurboSilos: z.boolean().optional(),
+        isMassOrders: z.boolean().optional(),
       })
       .optional(),
     nations: zb.union(

@@ -358,6 +358,8 @@ export class GameServer {
         onMessage: (client, msg) => this.handleClientMessage(client, msg),
         onClose: (client) => this.handleClientDisconnect(client),
         kick: (clientID, reasonKey) => this.kickClient(clientID, reasonKey),
+        relaxedLimits: () =>
+          this.gameConfig.publicGameModifiers?.isMassOrders === true,
       },
       undefined,
       this.gatekeeper,

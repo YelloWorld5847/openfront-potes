@@ -2127,7 +2127,11 @@
     "treasures_label": "Trésors cachés",
     "volcano": "Volcan",
     "volcano_label": "Volcan",
-    "water_nukes": "Bombes à eau"
+    "water_nukes": "Bombes à eau",
+    "turbo_silos": "Silos turbo",
+    "turbo_silos_label": "Silos turbo",
+    "mass_orders": "Envois en masse",
+    "mass_orders_label": "Envois en masse"
   },
   "public_lobby": {
     "connecting": "Connexion au lobby...",
@@ -2899,5 +2903,18 @@
     "step_scroll_and_tap": "Défilez vers le bas et tapotez",
     "step_share": "Tapotez le bouton \"Partager\" dans votre navigateur",
     "text": "Pour le grand écran, ajouter OpenFront à votre écran d'accueil"
+  },
+  "mass_orders": {
+    "title": "Envois en masse",
+    "quantity": "Quantité par ordre",
+    "hold_repeat": "Maintenir pour répéter",
+    "place": "Placer",
+    "atom_bomb": "Bombe atomique",
+    "hydrogen_bomb": "Bombe H",
+    "city": "Ville",
+    "upgrade_silos": "Améliorer les silos",
+    "upgrade_cities": "Améliorer les villes",
+    "hint": "Choisis quoi placer, puis clique ou maintiens sur la carte",
+    "silo": "Silo de missiles"
   }
 }

@@ -24,6 +24,7 @@ import { EventBus } from "@openfront/shared/EventBus";
 import { Controller } from "../Controller";
 import {
   ConfirmGhostStructureEvent,
+  MouseDownEvent,
   MouseMoveEvent,
   MouseUpEvent,
   TouchGhostPlacementDragStartEvent,
@@ -318,6 +319,8 @@ export class BuildPreviewController implements Controller {
   init() {
     this.eventBus.on(MouseMoveEvent, (e) => this.moveGhost(e));
     this.eventBus.on(MouseUpEvent, (e) => this.requestConfirmStructure(e));
+    this.eventBus.on(MouseDownEvent, (e) => this.startHoldRepeat(e));
+    this.eventBus.on(MouseUpEvent, () => this.stopHoldRepeat());
     this.eventBus.on(TouchGhostPlacementEvent, (e) =>
       this.handleTouchPlacement(e),
     );
@@ -1191,7 +1194,7 @@ export class BuildPreviewController implements Controller {
           this.uiState.upgradeMultiplier || 1,
         ),
       );
-      this.removeGhostStructure();
+      if (!this.uiState.massOrders) this.removeGhostStructure();
     } else if (unit.canBuild !== false) {
       const unitType = unit.type;
 
@@ -1200,7 +1203,8 @@ export class BuildPreviewController implements Controller {
         return;
       }
 
-      const isNuke = unitType === UnitType.AtomBomb;
+      const isNuke =
+        unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb;
       const rocketDirectionUp =
         unitType === UnitType.AtomBomb || unitType === UnitType.HydrogenBomb
           ? this.uiState.rocketDirectionUp
@@ -1213,7 +1217,9 @@ export class BuildPreviewController implements Controller {
           isNuke ? this.uiState.upgradeMultiplier || 1 : undefined,
         ),
       );
-      if (endsPlacement || !shouldPreserveGhostAfterBuild(unitType)) {
+      const keepGhost =
+        shouldPreserveGhostAfterBuild(unitType) || this.uiState.massOrders;
+      if (endsPlacement || !keepGhost) {
         this.removeGhostStructure();
       }
     } else {
@@ -1276,6 +1282,31 @@ export class BuildPreviewController implements Controller {
       );
     }
     return blocked;
+  }
+
+  private holdTimer: ReturnType<typeof setInterval> | null = null;
+
+  // Mass orders: keeping the button down places again and again, wherever the
+  // cursor goes, so a line of cities or a salvo of bombs is one gesture.
+  private startHoldRepeat(e: MouseDownEvent): void {
+    this.stopHoldRepeat();
+    if (!this.uiState.massOrders || !this.uiState.holdRepeat) return;
+    this.mousePos.x = e.x;
+    this.mousePos.y = e.y;
+    this.syncGhostState();
+    if (!this.ghostUnit) return;
+    this.holdTimer = setInterval(() => {
+      if (!this.ghostUnit || this.pendingConfirmations.length > 1) return;
+      this.requestConfirmStructure(
+        new MouseUpEvent(this.mousePos.x, this.mousePos.y),
+      );
+    }, 140);
+  }
+
+  private stopHoldRepeat(): void {
+    if (this.holdTimer === null) return;
+    clearInterval(this.holdTimer);
+    this.holdTimer = null;
   }
 
   private moveGhost(e: MouseMoveEvent): void {

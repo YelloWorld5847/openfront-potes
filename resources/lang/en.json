@@ -2296,6 +2296,19 @@
     "title": "Keep up with OpenFront?",
     "yes": "Yes please"
   },
+  "mass_orders": {
+    "atom_bomb": "Atom bomb",
+    "city": "City",
+    "hint": "Pick what to place, then click or hold on the map",
+    "hold_repeat": "Hold to repeat",
+    "hydrogen_bomb": "Hydrogen bomb",
+    "place": "Place",
+    "quantity": "Amount per order",
+    "silo": "Missile silo",
+    "title": "Mass orders",
+    "upgrade_cities": "Upgrade cities",
+    "upgrade_silos": "Upgrade silos"
+  },
   "matchmaking_modal": {
     "clan_queue_size": "From [{clan}] in queue: {count}",
     "clan_required": "Clan Wars is played for a clan. Select the tag of a clan you're a member of next to your username, then queue again.",
@@ -2779,6 +2792,8 @@
     "fog_label": "Fog of War",
     "gold_multiplier": "x{amount} Gold Multiplier",
     "hard_nations": "Hard Nations",
+    "mass_orders": "Mass Orders",
+    "mass_orders_label": "Mass Orders",
     "nukes_disabled": "Nukes Disabled",
     "nukes_disabled_label": "Nukes",
     "peace_time": "4min Peace",
@@ -2792,6 +2807,8 @@
     "starting_gold_label": "Starting Gold",
     "treasures": "Hidden Treasures",
     "treasures_label": "Hidden Treasures",
+    "turbo_silos": "Turbo Silos",
+    "turbo_silos_label": "Turbo Silos",
     "volcano": "Volcano",
     "volcano_label": "Volcano",
     "water_nukes": "Water Nukes"

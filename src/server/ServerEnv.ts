@@ -111,7 +111,9 @@ export class ServerEnv {
   }
   static jwtIssuer(): string {
     const audience = ServerEnv.jwtAudience();
-    if (audience === "localhost") return "http://localhost:8787";
+    if (audience === "localhost") {
+      return `http://localhost:${process.env.DEV_API_PORT ?? 8787}`;
+    }
     if (ServerEnv.isStandalone()) return "http://127.0.0.1:3000";
     return `https://api.${audience}`;
   }

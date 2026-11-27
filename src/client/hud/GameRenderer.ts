@@ -7,6 +7,7 @@ import { FogController } from "../controllers/FogController";
 import { HoverHighlightController } from "../controllers/HoverHighlightController";
 import { LiveStatsController } from "../controllers/LiveStatsController";
 import { MapLayerController } from "../controllers/MapLayerController";
+import { MassOrdersController } from "../controllers/MassOrdersController";
 import { SoundEffectController } from "../controllers/SoundEffectController";
 import { StructureHighlightController } from "../controllers/StructureHighlightController";
 import { ViewModeController } from "../controllers/ViewModeController";
@@ -70,6 +71,9 @@ export function createRenderer(
     ghostStructure: null,
     rocketDirectionUp: true,
     upgradeMultiplier: 1,
+    massOrders:
+      game.config().gameConfig().publicGameModifiers?.isMassOrders === true,
+    holdRepeat: true,
   };
 
   //hide when the game renders
@@ -350,6 +354,7 @@ export function createRenderer(
     new HoverHighlightController(game, eventBus, transformHandler, view),
     new LiveStatsController(game, eventBus),
     new FogController(game, transformHandler),
+    new MassOrdersController(game, eventBus, uiState),
     new VolcanoMarkerController(game, transformHandler),
     new StructureHighlightController(eventBus, view),
     new ViewModeController(eventBus, view),

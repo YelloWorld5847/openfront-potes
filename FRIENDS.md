@@ -56,6 +56,17 @@ On peut aussi les activer dans un salon privé (Advanced settings) et en Solo.
 La fréquence de chaque modificateur se règle dans `SPECIAL_MODIFIER_POOL` (`src/server/MapPlaylist.ts`) : plus il y a de lignes, plus il sort souvent.
 Pour en forcer sur toutes les parties spéciales, par exemple en test : `FORCE_MODIFIERS=isFog,isTreasures` (noms dans `ModifierKey`).
 
+## Gros budget : silos turbo et envois en masse
+
+Deux options pour les parties perso avec beaucoup d'or (salon privé, Advanced settings, ou Solo). Elles ne sortent pas dans les parties automatiques.
+
+- **Silos turbo** : la recharge d'un silo diminue avec son niveau (9 s au niveau 1, 1,5 s au niveau 11, jamais moins de 1 s). Un niveau de silo est aussi le nombre de missiles qui peuvent partir en parallèle : améliorer un silo coûte de l'or et fait les deux. Formule dans `SiloCooldown` (`packages/engine-lib/src/configuration/Config.ts`).
+- **Envois en masse** : un panneau à gauche de l'écran (`src/client/controllers/MassOrdersController.ts`) avec la quantité par ordre (x1 à x50), ce qu'on place (silo, ville, bombe atomique, bombe H), "maintenir pour répéter" et "améliorer tous les silos / toutes les villes". Une bombe cliquée avec x25 en lance 25 d'un coup. En maintenant le clic, le placement se répète à chaque case survolée ; sur une case qui a déjà un bâtiment, ça l'améliore. La limite de débit des ordres est multipliée par 20 dans ces parties (`ClientMsgRateLimiter.ts`).
+
+## En local sous Windows
+
+Docker peut réserver des ports, dont 8787, que le faux compte de `npm run dev` utilise. Si l'API locale ne démarre pas, lance avec `DEV_API_PORT=9150` (par exemple `DEV_API_PORT=9150 npm run dev`) et, dans la console du navigateur, `localStorage.setItem("apiHost", "http://localhost:9150")`.
+
 ## Où modifier quoi
 
 | Je veux changer                                                   | Fichier                                                                                      |

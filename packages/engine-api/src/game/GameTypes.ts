@@ -187,6 +187,9 @@ export interface PublicGameModifiers {
   isBlackMarket?: boolean;
   isTreasures?: boolean;
   isFog?: boolean;
+  // for custom games with a lot of gold: faster silos, and orders by the batch
+  isTurboSilos?: boolean;
+  isMassOrders?: boolean;
 }
 
 // name of the lava bot the volcano modifier spawns, the client colors it by name

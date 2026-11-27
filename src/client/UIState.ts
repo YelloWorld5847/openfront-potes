@@ -6,4 +6,8 @@ export interface UIState {
   ghostStructure: PlayerBuildableUnitType | null;
   rocketDirectionUp: boolean;
   upgradeMultiplier: number;
+  // games with mass orders: the panel is shown, the ghost stays after each
+  // placement and holding the button repeats it
+  massOrders?: boolean;
+  holdRepeat?: boolean;
 }

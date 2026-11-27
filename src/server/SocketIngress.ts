@@ -37,6 +37,8 @@ export interface SocketIngressView {
   onMessage: (client: Client, msg: ClientMessage) => void;
   onClose: (client: Client) => void;
   kick: (clientID: ClientID, reasonKey: string) => void;
+  // Mass-order games take intents a lot faster than the default limit
+  relaxedLimits?: () => boolean;
 }
 
 // The socket side of a game: attaches the listeners to a client's socket and
@@ -141,6 +143,7 @@ export class SocketIngress {
       client.clientID,
       clientMsg.type,
       bytes,
+      this.view.relaxedLimits?.() ?? false,
     );
     if (rateResult === "kick") {
       if (clientMsg.type === "intent") {

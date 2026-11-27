@@ -103,3 +103,30 @@ describe("ClientMsgRateLimiter", () => {
     });
   });
 });
+
+describe("ClientMsgRateLimiter relaxed limits", () => {
+  it("lets a mass-order game send far more intents per second", () => {
+    const limiter = new ClientMsgRateLimiter();
+    for (let i = 0; i < 100; i++) {
+      expect(limiter.check(CLIENT_A, "intent", SMALL, true)).toBe("ok");
+    }
+  });
+
+  it("still has a ceiling", () => {
+    const limiter = new ClientMsgRateLimiter();
+    let limited = false;
+    for (let i = 0; i < 500; i++) {
+      if (limiter.check(CLIENT_A, "intent", SMALL, true) === "limit") {
+        limited = true;
+        break;
+      }
+    }
+    expect(limited).toBe(true);
+  });
+
+  it("keeps the normal limit for everyone else", () => {
+    const limiter = new ClientMsgRateLimiter();
+    for (let i = 0; i < 10; i++) limiter.check(CLIENT_A, "intent", SMALL);
+    expect(limiter.check(CLIENT_A, "intent", SMALL)).toBe("limit");
+  });
+});

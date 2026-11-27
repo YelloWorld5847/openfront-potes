@@ -71,7 +71,7 @@ describe("SocketIngress.receive", () => {
 
     ingress.receive(client, frame);
 
-    expect(check).toHaveBeenCalledWith(P1, "ping", frame.length);
+    expect(check).toHaveBeenCalledWith(P1, "ping", frame.length, false);
     expect(view.onMessage).toHaveBeenCalledWith(client, {
       type: "ping",
       sentAt: 0,
